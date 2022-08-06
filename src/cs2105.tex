@@ -1,0 +1,106 @@
+\documentclass{article}
+
+\usepackage{amssymb}
+\usepackage{titlesec}
+\usepackage{cancel}
+\usepackage{enumerate}
+\usepackage{multirow} % row merging in tables
+
+\usepackage[utf8]{inputenc}
+\usepackage[fleqn]{amsmath}
+\usepackage{mathtools} % prettier set notation
+
+\usepackage{multicol} % double column pages or more
+\setlength\columnsep{20pt} % the default columnsep for all pages
+
+\usepackage{bm} % bold and italicize math
+\usepackage[none]{hyphenat} % no line breaking on words
+\usepackage[thinlines]{easytable} % better tables with row spacing
+
+% Better tables
+\usepackage{tabularx}
+\renewcommand{\arraystretch}{1.25}
+
+% Better code formatting
+\usepackage{listings}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\usepackage{geometry}
+\geometry{a4paper, portrait, margin=0.5in, top=0.71in}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{CS2105 --- Introduction to Computer Networks}
+\rhead{Page \thepage}
+\setlength{\headheight}{2em}
+\renewcommand{\headrulewidth}{2pt}
+
+\renewcommand{\labelenumii}{\theenumii}
+\renewcommand{\theenumii}{\theenumi.\arabic{enumii}.}
+\renewcommand{\labelenumiii}{\theenumiii}
+\renewcommand{\theenumiii}{\theenumii\arabic{enumiii}.}
+
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.7em}
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+\setlength{\mathindent}{0pt} % no indent for all math (including the align) environemnts
+
+% \titlespacing\part{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\section{0pt}{5pt plus 2pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{4pt plus 2pt minus 2pt}{-1pt plus 2pt minus 2pt}
+\titlespacing\subsubsection{0pt}{3pt plus 2pt minus 2pt}{0pt plus 2pt minus 2pt}
+
+\usepackage{etoolbox}
+\newcommand{\zerodisplayskips}{%
+  \setlength{\abovedisplayskip}{0pt}%
+  \setlength{\belowdisplayskip}{0pt}%
+  \setlength{\abovedisplayshortskip}{0pt}%
+  \setlength{\belowdisplayshortskip}{0pt}}
+\appto{\normalsize}{\zerodisplayskips}
+\appto{\small}{\zerodisplayskips}
+\appto{\footnotesize}{\zerodisplayskips}
+
+% Remove vertical spacing around verbatim
+\makeatletter
+\preto{\@verbatim}{\topsep=-4pt \partopsep=0pt}
+\makeatother
+
+% Horizontal lines across a page
+\newcommand{\pageline}[1]{\par\noindent\rule{\textwidth}{#1}}
+
+% Proper double quotes
+\newcommand{\quoted}[1]{\textquotedblleft{#1}\textquotedblright}
+
+% Unordered list modifications
+% Remove enumerate spacing with [leftmargin=*]
+\usepackage{enumitem}
+\setlist{nolistsep} % remove spacing in and around lists
+\setlist[itemize]{leftmargin=*} % remove natural first level indent
+\renewcommand{\labelitemi}{\textsc{--}} % change first level bullet to --
+
+% Drawing trees
+\usepackage[linguistics]{forest}
+
+\title{\vspace{-1cm}\textbf{CS2105 \\[0.25em] Introduction to Computer Networks} \\[2em] \Large AY2022/23 Semester 1 \\[1em]}
+\author{Notes by Jonathan Tay}
+\date{Last updated on \today}
+
+\begin{document}
+    \pagenumbering{gobble} % remove page numbering for content pages
+    \maketitle
+    \pageline{1.5pt}
+    \renewcommand{\baselinestretch}{0.75}\normalsize
+    \tableofcontents
+    \renewcommand{\baselinestretch}{1.1}\normalsize
+    \pageline{1.5pt}
+
+    \newpage
+    \pagenumbering{arabic} % re-add page numbering
+    \begin{multicols*}{2}
+        
+    \end{multicols*}
+\end{document}
