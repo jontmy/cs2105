@@ -1,28 +1,26 @@
-# CS2040S #
+# CS2105 #
 
-## Data Structures and Algorithms ##
+## Introduction to Computer Networks ##
 
-> This module introduces students to the design and implementation of fundamental data structures and algorithms. The module covers basic data structures (linked lists, stacks, queues, hash tables, binary heaps, trees, and graphs), searching and sorting algorithms, and basic analysis of algorithms.
+> This module aims to provide a broad introduction to computer networks and network application programming. It covers the main concepts, the fundamental principles, and the high-level workings of important protocols in each of the Internet protocol layer. Topics include the Web and Web applications, DNS services, socket programming, reliable protocols, transport and network layer protocols, secure communication, LAN, and data communication. Practical assignments and handson exercises expose students to network application programming and various networking tools and utilities.
 
-## Links ##
-
-The compiled LaTeX document can be found [here](https://github.com/jontmy/nus-cs2040s/blob/master/src/cs2040s.pdf).
+View the compiled document [here](https://github.com/jontmy/nus-cs2040s/blob/master/src/cs2105s.pdf).
 
 ## Topics ##
 
 | **Content**                                | **Status** |
 |--------------------------------------------|:----------:|
-| Sorting                                    | ✓          |
-| Searching                                  | ✓          |
-| Hashing                                    | ✓          |
-| Heaps                                      | ✓          |
-| Trees                                      | ✓          |
-| Graphs                                     | ✓          |
-| Shortest Paths                             | ✓          |
-| Union-Find                                 | ✓          |
-| Minimum Spanning Trees                     | ✓          |
-| Dynamic Programming                        | ✓          |
+| Introduction                               |            |
+| HTTP                                       |            |
+| DNS, Socket Programming                    |            |
+| UDP                                        |            |
+| TCP, Reliable Transmission                 |            |
+| DHCP, IP Addressing                        |            |
+| NAT, ICMP, Routing                         |            |
+| Link Layer                                 |            |
+| Network Security                           |            |
+| Physical Layer                             |            |
 
 ## Additional Resources ##
 
-[**Algorithms, 4th ed.**](https://algs4.cs.princeton.edu/home/) — Course textbook.
+[**Computer Networking: A Top Down Approach, 8th ed.**](https://gaia.cs.umass.edu/kurose_ross/index.php) — Course textbook.
