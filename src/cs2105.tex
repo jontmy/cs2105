@@ -17,6 +17,11 @@
 \usepackage[none]{hyphenat} % no line breaking on words
 \usepackage[thinlines]{easytable} % better tables with row spacing
 
+% Custom named colors
+\usepackage[dvipsnames]{xcolor}
+\definecolor{body}{HTML}{333333}
+\definecolor{background}{HTML}{FDFDFD}
+
 % Better tables
 \usepackage{tabularx}
 \renewcommand{\arraystretch}{1.25}
@@ -89,6 +94,8 @@
 \author{Notes by Jonathan Tay}
 \date{Last updated on \today}
 
+\color{body}
+\pagecolor{background} % remove this before printing!
 \begin{document}
     \pagenumbering{gobble} % remove page numbering for content pages
     \maketitle
