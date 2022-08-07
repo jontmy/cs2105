@@ -1,0 +1,85 @@
+\section{Introduction}
+
+\subsection{Network Edge}
+\textbf{Hosts} (end systems) access the Internet through \textbf{access networks}, running network applications,
+and communicating over \textbf{links}.
+
+Wireless access network use access points to connect hosts to routers, either via wireless LANs, e.g. Wi-Fi,
+or wide-area wireless access, e.g. 4G.
+
+Hosts can connect directly to an access network physically via guided media, e.g. twisted pair cables and fiber optic cables,
+or over-the-air via unguided meia, e.g. radio.
+
+\subsection{Network Core}
+\emph{A mesh of interconnected routers which forward data in a network.}
+
+Transmitting data through a network takes place via \textbf{circuit switching} or \textbf{packet switching}.
+
+\subsubsection{Circuit Switching}
+Circuits along the path are reserved before transmission can begin, which mean that
+no other circuit can use the same path, but performance can be guaranteed.
+
+However, there is a finite number of circuits, so the network is limited in its capacity.
+This approach is used in telephone networks.
+
+\subsubsection{Packet Switching}
+Messages are broken into smaller chunks, called \textbf{packets}.
+Packets are transmitted onto a link at a \textbf{transmission rate}, also known as \textbf{link capacity} or \textbf{bandwidth}.
+
+The \textbf{packet transmission delay} $\left(d_{\text{trans}}\right)$ is the time needed to transmit an $L$-bit packet into the link 
+at a transmission rate $R$.\\
+\begin{equation*}
+    d_{\text{trans}} = \frac{L \text{ in bits}}{R \text{ in bits/sec}} \text{ seconds}
+\end{equation*}
+
+Packets are passed from one \textbf{router} to the next across links on the path from the source to the destination.
+
+This incurs a \textbf{propagation delay} $\left(d_{\text{prop}}\right)$, which depends on the length $d$ of the physical link,
+and the propagation speed $s$ in the medium.\\
+\begin{equation*}
+    d_{\text{prop}} = \frac{d}{s \approx 2 \times 10^8 \; m/s}
+\end{equation*}
+
+At each router, packets are \textbf{stored and forwarded}, which means an entire packet must arrive before being
+transmitted onto the next link.
+
+Therefore, with $P$ packets and $N$ routers, the \textbf{end-to-end delay}:\\
+\begin{equation*}
+    d_{\text{end-to-end}} = (P + N - 1) \cdot \frac{L}{R}
+\end{equation*}
+
+At the router, packets are checked for bit errors and the output link is determined using \textbf{routing algorithms}.
+This incurs a \textbf{nodal processing delay} $\left(d_{\text{proc}}\right)$.
+
+Therefore, packets have to \textbf{queue} in a \textbf{buffer} at each router,
+also incurring a \textbf{queueing delay} $\left(d_{\text{queue}}\right)$, which is the time spent waiting in the
+queue before transmission.
+
+Router buffers have a finite capacity and packets arriving to a full queue will be \textbf{dropped}.
+
+In general,\\
+\begin{equation*}
+    d_{\text{end-to-end}} = d_{\text{trans}} + d_{\text{prop}} + d_{\text{queue}} + d_{\text{proc}} 
+\end{equation*}
+
+\subsubsection{Throughput}
+\emph{The number of bits that can be transmitted the per unit time.}
+
+Each link has its own \textbf{bandwidth} $R$, so throughput is measured for end-to-end communication.\\
+\begin{equation*}
+    \text{throughput} = \frac{1}{\sum_{i=1}^{n} \frac{1}{R_{i}}} \text{ where $n$ is the number of links}
+\end{equation*}
+
+Peak throughput and other throughput calculations are not covered in this module.
+
+\subsection{Network Protocols}
+\emph{The format and order of messages exchanged, and the actions taken after messages are sent and received.}
+
+The protocols in the Internet are arranged in a stack of \textbf{5 layers}:
+\begin{enumerate}
+    \item \textbf{application}, e.g. HTTP, SMTP
+    \item \textbf{transport}, e.g. TCP, UDP
+    \item \textbf{network}, e.g. IP
+    \item \textbf{link}, e.g. ethernet, 802.11
+    \item \textbf{physical}, e.g. bits on the wire
+\end{enumerate}
