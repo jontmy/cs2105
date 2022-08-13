@@ -1,0 +1,105 @@
+\section{Application Layer}
+Application layer protocols define the:
+\begin{enumerate}
+    \item \textbf{types of messages exchanged}, e.g. requests, responses
+    \item \textbf{message syntax}, e.g. message fields and delineation
+    \item \textbf{message semantics}, i.e. meaning of information in fields
+    \item \textbf{rules} for when and how applications send and respond to messages
+\end{enumerate}
+
+
+\subsection{Architectures}
+In the \textbf{client-server} architecture, a \textbf{client initiates contact} with a \textbf{server},
+which waits for the request before providing a service back to the client.
+
+This relies on data centers for scaling, and clients are usually implemented in web browsers.
+
+In the \textbf{peer-to-peer} architecture, arbitrary end systems communicate directly with each other,
+requesting and returning services.
+
+This is \textbf{self-scalable} as new peers bring service capacity and demand.
+However, this architecture is more complex as peers are connected intermittently.
+
+Regardless of which architecture is used, the application layer ride on the \textbf{transport layer} protocols
+--- \textbf{TCP} or \textbf{UDP} --- for data integrity, throughput, timing, and security.
+
+
+\subsection{Hypertext Transfer Protocol (HTTP)}
+\emph{The application layer protocol of the Internet.}
+
+HTTP uses the client-server architecture and TCP as the transport service.
+The client must \textbf{initiate a TCP connection} with the server before sending a \textbf{request message}.
+
+The server receives the request message and sends the \textbf{response message} with the requested object
+back to the client.
+
+The \textbf{round-trip time} (RTT) is the time taken for a packet to travel from a client to the server and back.
+
+The \textbf{HTTP response time} in general takes one RTT to establish the TCP connection, one more RTT for the
+HTTP request to be fulfilled, plus the file transmission delay.
+
+\subsubsection{Request Message}
+\begin{lstlisting}
+GET /index.html HTTP/1.1\r\n
+Host: www.example.org\r\n
+Connection: keep-alive\r\n
+...
+\r\n
+<body>
+\end{lstlisting}
+
+Line 1 is the \textbf{request line}, specifying the \textbf{method}, \textbf{URL}, and \textbf{HTTP version}.
+
+Lines 2 to 4 are the \textbf{header lines}, each specifying the \textbf{header field name} and \textbf{value}.
+Only the \code{Host} header is required.
+
+The extra blank line (line 5) indicates the end of the header lines, after which the body follows.
+
+\subsubsection{Response Message}
+\begin{lstlisting}
+HTTP/1.1 200 OK\r\n
+Date: Wed, 23 Jan 2019 13:11:15 GMT\r\n
+Content-Length: 606\r\n
+Content-Type: text/html\r\n
+...
+\r\n
+<data>
+\end{lstlisting}
+
+Line 1 is the \textbf{status line} specifying the \textbf{HTTP version} and the \textbf{response status code}.
+
+Lines 2 to 5 are the \textbf{header lines}, and lines 7 and onward contain the data requested, e.g. the HTML file.
+
+\subsubsection{HTTP 1.0 (non-persistent HTTP)}
+At most one object is sent over a TCP connection, after which the connection is closed.
+
+Downloading multiple objects therefore requires multiple connections, incurring 2 RTTs per object in addition to the overhead for each TCP
+connection, which some browsers may parallelize.
+
+\subsubsection{HTTP 1.1 (persistent HTTP)}
+Unlike HTTP 1.0, the server leaves the TCP connection open after sending the response, which is reused for subsequent messages.
+
+\textbf{Persistent connections with pipelining} allow multiple objects to be requested even before the server
+has responded to previous requests.
+
+This reduces the total response time to as low as one RTT.
+
+\subsubsection{Conditional \code{GET}}
+\emph{Avoiding unnecessary requests for cached and up-to-date objects.}
+
+Clients send an additional \code{If-Modified-Since} header with the request, containing the date of last modification.
+
+If the requested object has been modified after the date specified, then the server responds with a \code{200 OK} along
+with the requested object data.
+
+Otherwise, the server responds with a \code{304 Not Modified}, which means the client can use its cached version.
+
+\subsubsection{Cookies}
+\emph{Maintaining state despite the stateless nature of HTTP.}
+
+Cookies are sent using the \code{Cookie} and \code{Set-Cookie} header fields in requests and responses respectively.
+
+They are created by servers, stored client-side, and managed by browsers.
+
+Cookies are sent to the server in subsequent requests,
+which the server can then use to execute \textbf{cookie-specific actions}, e.g. retrieve a shopping cart.
