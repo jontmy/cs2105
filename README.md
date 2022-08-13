@@ -11,7 +11,7 @@ View the compiled document [here](https://github.com/jontmy/cs2105/blob/master/s
 | **Content**                                | **Status** |
 |--------------------------------------------|:----------:|
 | Introduction                               | ✓          |
-| HTTP                                       |            |
+| HTTP                                       | ✓          |
 | DNS, Socket Programming                    |            |
 | UDP                                        |            |
 | TCP, Reliable Transmission                 |            |
