@@ -19,8 +19,8 @@
 
 % Custom named colors
 \usepackage[dvipsnames]{xcolor}
-\definecolor{body}{HTML}{333333}
-\definecolor{background}{HTML}{FDFDFD}
+\definecolor{body}{HTML}{444444}
+\definecolor{background}{HTML}{F9F9F9}
 
 % Better tables
 \usepackage{tabularx}
@@ -29,6 +29,20 @@
 % Better code formatting
 \usepackage{listings}
 \newcommand{\code}[1]{\texttt{#1}}
+\lstset{
+    mathescape,
+    basicstyle=\small\fontfamily{lmvtt}\selectfont,
+    numbers=left,
+    numberstyle=\tiny,
+    frame=tb,
+    tabsize=4,
+    columns=fullflexible,
+    showstringspaces=false,
+    showtabs=false,
+    keepspaces,
+    commentstyle=\color{red},
+    keywordstyle=\color{blue}
+}
 
 \usepackage{geometry}
 \geometry{a4paper, portrait, margin=0.5in, top=0.71in}
