@@ -70,14 +70,14 @@ Line 1 is the \textbf{status line} specifying the \textbf{HTTP version} and the 
 
 Lines 2 to 5 are the \textbf{header lines}, and lines 7 and onward contain the data requested, e.g. the HTML file.
 
-\subsubsection{HTTP 1.0 (non-persistent HTTP)}
+\subsubsection{HTTP/1.0 (non-persistent HTTP)}
 At most one object is sent over a TCP connection, after which the connection is closed.
 
 Downloading multiple objects therefore requires multiple connections, incurring 2 RTTs per object in addition to the overhead for each TCP
 connection, which some browsers may parallelize.
 
-\subsubsection{HTTP 1.1 (persistent HTTP)}
-Unlike HTTP 1.0, the server leaves the TCP connection open after sending the response, which is reused for subsequent messages.
+\subsubsection{HTTP/1.1 (persistent HTTP)}
+Unlike HTTP/1.0, the server leaves the TCP connection open after sending the response, which is reused for subsequent messages.
 
 \textbf{Persistent connections with pipelining} allow multiple objects to be requested even before the server
 has responded to previous requests.
@@ -103,3 +103,118 @@ They are created by servers, stored client-side, and managed by browsers.
 
 Cookies are sent to the server in subsequent requests,
 which the server can then use to execute \textbf{cookie-specific actions}, e.g. retrieve a shopping cart.
+
+
+\subsection{Domain Name System (DNS)}
+Computers use \textbf{IP addresses} to identify hosts and communicate, 
+but \textbf{hostnames} (e.g. www.example.org) are easier for humans to remember.
+
+The \textbf{domain name system} translates between a hostname and its IP addresses
+--- multiple IPs are usually used for load-balancing.
+
+DNS runs on the \textbf{UDP} transport protocol (chosen for its speed), which means queries 
+can get lost or corrupted in transmission, but due to the locality of queries, 
+such incidents are rare.
+
+Furthermore, in the event of a query loss, browsers can simply re-issue the query, or
+even issue multiple queries right from the start.
+
+Use \code{nslookup} or \code{dig} at the command line to perform a DNS query.
+
+\subsubsection{DNS Servers}
+DNS servers store resource records in distributed databases implemented in a heirarchy of
+many name servers.
+
+\begin{enumerate}[leftmargin=*,itemsep=0.5em]
+    \item \textbf{Root servers}: answer requests for records in the root zone, 
+    returning a list of authoritative name servers for the appropriate \textbf{top-level domain} (TLD).
+    \item \textbf{Top-level domain servers}: answer requests for \code{.com}, \code{.org}, etc.,
+    and the top-level country domains, e.g. \code{.sg}.
+    \item \textbf{Authoritative servers} belong to organizations and service providers, mapping
+    an authoritative hostname to IP addresses.
+    \item \textbf{Local servers}: cache answers to DNS queries for faster access, and
+    act as proxies to forward DNS queries if the answer is not cached.
+\end{enumerate}
+
+\subsubsection{Resource Records (RR)}
+Resource records format: \code{(name, value, type, ttl)}.
+
+\begin{tabularx}{\linewidth}{l|l|X}
+    \textbf{type} & \textbf{name} & \textbf{value} \\ \hline
+    \code{A} & hostname & IP address \\
+    \code{CNAME} & alias name & canonical (real) name \\
+    \code{NS} (name server) & domain & hostname of authoritative name server \\
+    \code{MX} (email server) & mail server & name of mail server \\ \hline
+\end{tabularx}
+
+\code{ttl}, a.k.a. \textbf{time-to-live}, is the number of seconds that a record is valid for
+after it is cached in a local server.
+
+When the TTL reaches zero, it is invalidated and removed from the cache.
+
+This also means that changes to an IP address of a host may not be immediately reflected
+until the TTL expires.
+
+\subsubsection{Domain Name Resolution}
+In a \textbf{recursive query}, the query is forwarded from the client through the local server,
+root server, TLD server, and then to the authoritative server, and the response is forwarded back 
+to the client.
+
+In an \textbf{iterative query}, the local DNS server handles the queries and responses directly,
+pinging the root, TLD, and lastly the authoritative servers, without any forwarding.
+
+Both query methods are valid, but iterative querying is used in practice.
+
+
+\subsection{Socket Programming}
+A \textbf{process} is a program running on a host.
+
+Within the same host, the OS can define inter-process communication, but
+processes on different hosts communicate by exchanging messages.
+
+Processes are identified by an \textbf{IP address \emph{and} port number}.
+
+\begin{tabular}{l|r}
+    type & number of bits \\ \hline
+    IPv4 & 32 \\
+    IPv6 & 128 \\
+    port & 16 \\ \hline
+\end{tabular}
+
+A \textbf{socket} is the software interface --- a set of APIs --- 
+between processes and transport layer protocols.
+
+Processes send and receive messages via a socket.
+
+\subsubsection{via UDP}
+The sender attatches the \textbf{destination IP address \emph{and} port number} to \emph{each packet},
+which the receiver extracts.
+
+\begin{enumerate}
+    \item Client creates \code{clientSocket}.
+    \item Server creates \code{serverSocket}.
+    \item Client creates packet with \code{serverIP} and port \code{x}, sent via \code{clientSocket}.
+    \item Server reads the \textbf{datagram} from \code{serverSocket}.
+    \item Sever sends the reply specifying the client address and port number via \code{serverSocket}.
+    \item Client reads the datagram from \code{clientSocket}.
+    \item \code{clientSocket} is closed.
+\end{enumerate}
+
+No connection is established between the client and the server.
+This method of transmission via datagrams over UDP is \emph{unreliable}.
+
+\subsubsection{via TCP}
+When contacted by a client, the server TCP connection creates a \emph{new socket} for the
+server process to communicate with that client.
+
+This allows the server to communicate with \emph{multiple clients simultaneously}.
+
+\begin{enumerate}
+    \item Server creates \code{serverSocket} on port \code{x}.
+    \item Client creates \code{clientSocket}, connecting to \code{serverIP} on port \code{x}.
+    \item Client and server set up a TCP connection.
+    \item Client and server exchange requests using \code{clientSocket} and \code{connectionSocket}
+    respectively.
+    \item Server closes \code{connectionSocket}.
+    \item Client closes \code{clientSocket}.
+\end{enumerate}
