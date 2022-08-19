@@ -139,7 +139,7 @@ many name servers.
 \subsubsection{Resource Records (RR)}
 Resource records format: \code{(name, value, type, ttl)}.
 
-\begin{tabularx}{\linewidth}{l|l|X}
+\begin{tabularx}{\linewidth}{l|l|X} \hline
     \textbf{type} & \textbf{name} & \textbf{value} \\ \hline
     \code{A} & hostname & IP address \\
     \code{CNAME} & alias name & canonical (real) name \\
@@ -174,8 +174,8 @@ processes on different hosts communicate by exchanging messages.
 
 Processes are identified by an \textbf{IP address \emph{and} port number}.
 
-\begin{tabular}{l|r}
-    type & number of bits \\ \hline
+\begin{tabular}{l|r} \hline
+    \textbf{type} & \textbf{number of bits} \\ \hline
     IPv4 & 32 \\
     IPv6 & 128 \\
     port & 16 \\ \hline
