@@ -13,7 +13,10 @@
 \usepackage{multicol} % double column pages or more
 \setlength\columnsep{20pt} % the default columnsep for all pages
 
+% Better math
 \usepackage{bm} % bold and italicize math
+\usepackage{siunitx} % SI units with \si{...}
+
 \usepackage[none]{hyphenat} % no line breaking on words
 \usepackage[thinlines]{easytable} % better tables with row spacing
 
@@ -23,8 +26,16 @@
 \definecolor{background}{HTML}{FFFFFF}
 
 % Better tables
-\usepackage{tabularx}
+\usepackage{tabularx} % deprecated - use tabularrray instead - fit columns to width with \tabularx{\linewidth}{X}
 \renewcommand{\arraystretch}{1.25}
+\usepackage{arydshln} % dashed lines in tables
+\newcolumntype{Y}{>{\centering\arraybackslash}X} % centered tabularx X columns with Y
+\usepackage{tabularray} % modern table typesetting, superseding tabularx
+
+% Better fonts
+\usepackage{arev}
+\usepackage[sfdefault]{inter}
+\usepackage[T1]{fontenc}
 
 % Better code formatting
 \usepackage{listings}
@@ -44,8 +55,12 @@
     keywordstyle=\color{blue}
 }
 
+% Insert images
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
 \usepackage{geometry}
-\geometry{a4paper, portrait, margin=0.5in, top=0.71in}
+\geometry{a4paper, portrait, margin=0.4in, top=0.7in}
 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
@@ -68,7 +83,7 @@
 \setlength{\belowdisplayshortskip}{0pt}
 \setlength{\mathindent}{0pt} % no indent for all math (including the align) environemnts
 
-% \titlespacing\part{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\part{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
 \titlespacing\section{0pt}{5pt plus 2pt minus 2pt}{0pt plus 2pt minus 2pt}
 \titlespacing\subsection{0pt}{4pt plus 2pt minus 2pt}{-1pt plus 2pt minus 2pt}
 \titlespacing\subsubsection{0pt}{3pt plus 2pt minus 2pt}{0pt plus 2pt minus 2pt}
@@ -124,5 +139,6 @@
     \begin{multicols*}{2}
         \input{introduction.tex}
         \input{application.tex}
+        \input{transport.tex}
     \end{multicols*}
 \end{document}
