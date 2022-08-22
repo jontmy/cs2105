@@ -1,4 +1,4 @@
-\section{Application Layer}
+\part{Application Layer}
 Application layer protocols define the:
 \begin{enumerate}
     \item \textbf{types of messages exchanged}, e.g. requests, responses
@@ -8,7 +8,7 @@ Application layer protocols define the:
 \end{enumerate}
 
 
-\subsection{Architectures}
+\section{Architectures}
 In the \textbf{client-server} architecture, a \textbf{client initiates contact} with a \textbf{server},
 which waits for the request before providing a service back to the client.
 
@@ -24,7 +24,7 @@ Regardless of which architecture is used, the application layer ride on the \tex
 --- \textbf{TCP} or \textbf{UDP} --- for data integrity, throughput, timing, and security.
 
 
-\subsection{Hypertext Transfer Protocol (HTTP)}
+\section{Hypertext Transfer Protocol (HTTP)}
 \emph{The application layer protocol of the Internet.}
 
 HTTP uses the client-server architecture and TCP as the transport service.
@@ -38,7 +38,7 @@ The \textbf{round-trip time} (RTT) is the time taken for a packet to travel from
 The \textbf{HTTP response time} in general takes one RTT to establish the TCP connection, one more RTT for the
 HTTP request to be fulfilled, plus the file transmission delay.
 
-\subsubsection{Request Message}
+\subsection{Request Message}
 \begin{lstlisting}
 GET /index.html HTTP/1.1\r\n
 Host: www.example.org\r\n
@@ -55,7 +55,7 @@ Only the \code{Host} header is required.
 
 The extra blank line (line 5) indicates the end of the header lines, after which the body follows.
 
-\subsubsection{Response Message}
+\subsection{Response Message}
 \begin{lstlisting}
 HTTP/1.1 200 OK\r\n
 Date: Wed, 23 Jan 2019 13:11:15 GMT\r\n
@@ -70,13 +70,13 @@ Line 1 is the \textbf{status line} specifying the \textbf{HTTP version} and the 
 
 Lines 2 to 5 are the \textbf{header lines}, and lines 7 and onward contain the data requested, e.g. the HTML file.
 
-\subsubsection{HTTP/1.0 (non-persistent HTTP)}
+\subsection{HTTP/1.0 (non-persistent HTTP)}
 At most one object is sent over a TCP connection, after which the connection is closed.
 
 Downloading multiple objects therefore requires multiple connections, incurring 2 RTTs per object in addition to the overhead for each TCP
 connection, which some browsers may parallelize.
 
-\subsubsection{HTTP/1.1 (persistent HTTP)}
+\subsection{HTTP/1.1 (persistent HTTP)}
 Unlike HTTP/1.0, the server leaves the TCP connection open after sending the response, which is reused for subsequent messages.
 
 \textbf{Persistent connections with pipelining} allow multiple objects to be requested even before the server
@@ -84,7 +84,7 @@ has responded to previous requests.
 
 This reduces the total response time to as low as one RTT.
 
-\subsubsection{Conditional \code{GET}}
+\subsection{Conditional \code{GET}}
 \emph{Avoiding unnecessary requests for cached and up-to-date objects.}
 
 Clients send an additional \code{If-Modified-Since} header with the request, containing the date of last modification.
@@ -94,7 +94,7 @@ with the requested object data.
 
 Otherwise, the server responds with a \code{304 Not Modified}, which means the client can use its cached version.
 
-\subsubsection{Cookies}
+\subsection{Cookies}
 \emph{Maintaining state despite the stateless nature of HTTP.}
 
 Cookies are sent using the \code{Cookie} and \code{Set-Cookie} header fields in requests and responses respectively.
@@ -105,7 +105,7 @@ Cookies are sent to the server in subsequent requests,
 which the server can then use to execute \textbf{cookie-specific actions}, e.g. retrieve a shopping cart.
 
 
-\subsection{Domain Name System (DNS)}
+\section{Domain Name System (DNS)}
 Computers use \textbf{IP addresses} to identify hosts and communicate, 
 but \textbf{hostnames} (e.g. www.example.org) are easier for humans to remember.
 
@@ -121,7 +121,7 @@ even issue multiple queries right from the start.
 
 Use \code{nslookup} or \code{dig} at the command line to perform a DNS query.
 
-\subsubsection{DNS Servers}
+\subsection{DNS Servers}
 DNS servers store resource records in distributed databases implemented in a heirarchy of
 many name servers.
 
@@ -136,7 +136,7 @@ many name servers.
     act as proxies to forward DNS queries if the answer is not cached.
 \end{enumerate}
 
-\subsubsection{Resource Records (RR)}
+\subsection{Resource Records (RR)}
 Resource records format: \code{(name, value, type, ttl)}.
 
 \begin{tabularx}{\linewidth}{l|l|X} \hline
@@ -155,7 +155,7 @@ When the TTL reaches zero, it is invalidated and removed from the cache.
 This also means that changes to an IP address of a host may not be immediately reflected
 until the TTL expires.
 
-\subsubsection{Domain Name Resolution}
+\subsection{Domain Name Resolution}
 In a \textbf{recursive query}, the query is forwarded from the client through the local server,
 root server, TLD server, and then to the authoritative server, and the response is forwarded back 
 to the client.
@@ -166,7 +166,7 @@ pinging the root, TLD, and lastly the authoritative servers, without any forward
 Both query methods are valid, but iterative querying is used in practice.
 
 
-\subsection{Socket Programming}
+\section{Socket Programming}
 A \textbf{process} is a program running on a host.
 
 Within the same host, the OS can define inter-process communication, but
@@ -186,7 +186,7 @@ between processes and transport layer protocols.
 
 Processes send and receive messages via a socket.
 
-\subsubsection{via UDP}
+\subsection{via UDP}
 The sender attatches the \textbf{destination IP address \emph{and} port number} to \emph{each packet},
 which the receiver extracts.
 
@@ -203,7 +203,7 @@ which the receiver extracts.
 No connection is established between the client and the server.
 This method of transmission via datagrams over UDP is \emph{unreliable}.
 
-\subsubsection{via TCP}
+\subsection{via TCP}
 When contacted by a client, the server TCP connection creates a \emph{new socket} for the
 server process to communicate with that client.
 
