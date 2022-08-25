@@ -1,43 +1,73 @@
 \documentclass{article}
 
-\usepackage{amssymb}
-\usepackage{titlesec}
-\usepackage{cancel}
-\usepackage{enumerate}
-\usepackage{multirow} % row merging in tables
-
-\usepackage[utf8]{inputenc}
-\usepackage[fleqn]{amsmath}
-\usepackage{mathtools} % prettier set notation
-
+% Layout packages
+\usepackage{geometry}
+\geometry{a4paper, portrait, margin=0.4in, top=0.7in}
 \usepackage{multicol} % double column pages or more
 \setlength\columnsep{20pt} % the default columnsep for all pages
+\usepackage[none]{hyphenat} % no line breaking on words
 
-% Better math
-\usepackage{bm} % bold and italicize math
+% Alter typesetting of headers and footers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{CS2105 --- Introduction to Computer Networks}
+\rhead{Page \thepage}
+\setlength{\headheight}{2em}
+\renewcommand{\headrulewidth}{2pt}
+
+% Alter typsesetting of headings
+\usepackage{titlesec}
+\titlespacing\part{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\section{0pt}{5pt plus 2pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{4pt plus 2pt minus 2pt}{-1pt plus 2pt minus 2pt}
+\titlespacing\subsubsection{0pt}{3pt plus 2pt minus 2pt}{0pt plus 2pt minus 2pt}
+
+% Math packages
+% https://tex.stackexchange.com/questions/32100/what-does-each-ams-package-do
+\usepackage{amssymb}
+\usepackage[fleqn]{amsmath}
+% \usepackage{cancel} % cancelling symbols - unused
+% \usepackage{bm} % bold and italicize math - unused
 \usepackage{siunitx} % SI units with \si{...}
 
-\usepackage[none]{hyphenat} % no line breaking on words
-\usepackage[thinlines]{easytable} % better tables with row spacing
+% Font packages
+\usepackage[utf8]{inputenc}
+\usepackage{arev}
+\usepackage[sfdefault]{inter}
+\usepackage[T1]{fontenc}
 
-% Custom named colors
-\usepackage[dvipsnames]{xcolor}
-\definecolor{body}{HTML}{494949}
+% Color packages
+\usepackage[dvipsnames]{xcolor} % custom named colors
+\definecolor{body}{HTML}{555555}
 \definecolor{background}{HTML}{FFFFFF}
 
-% Better tables
+% Image & graphics packages
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+% \usepackage[linguistics]{forest} % unused (no trees)
+\usepackage{mhchem} % chemical formulae & equations
+
+% Better enumerate/itemize environment
+\usepackage{enumerate}
+\usepackage{enumitem} % all list modifications - remove enumerate spacing with [leftmargin=*]
+\setlist{nolistsep} % remove spacing in and around lists
+\setlist[itemize]{leftmargin=*} % remove natural first level indent
+\renewcommand{\labelitemi}{\textsc{--}} % change first level bullet to --
+\renewcommand{\labelenumii}{\theenumii} % change enumerate numbering to arabic
+\renewcommand{\theenumii}{\theenumi.\arabic{enumii}.}
+\renewcommand{\labelenumiii}{\theenumiii}
+\renewcommand{\theenumiii}{\theenumii\arabic{enumiii}.}
+
+% Better table environments
 \usepackage{tabularx} % deprecated - use tabularrray instead - fit columns to width with \tabularx{\linewidth}{X}
 \renewcommand{\arraystretch}{1.25}
 \usepackage{arydshln} % dashed lines in tables
 \newcolumntype{Y}{>{\centering\arraybackslash}X} % centered tabularx X columns with Y
 \usepackage{tabularray} % modern table typesetting, superseding tabularx
+\usepackage{multirow} % row merging in tables
 
-% Better fonts
-\usepackage{arev}
-\usepackage[sfdefault]{inter}
-\usepackage[T1]{fontenc}
-
-% Better code formatting
+% Better code environments
 \usepackage{listings}
 \newcommand{\code}[1]{\texttt{#1}}
 \lstset{
@@ -54,27 +84,11 @@
     commentstyle=\color{red},
     keywordstyle=\color{blue}
 }
+\makeatletter % Remove vertical spacing around verbatim
+\preto{\@verbatim}{\topsep=-4pt \partopsep=0pt}
+\makeatother
 
-% Insert images
-\usepackage{graphicx}
-\graphicspath{ {./images/} }
-
-\usepackage{geometry}
-\geometry{a4paper, portrait, margin=0.4in, top=0.7in}
-
-\usepackage{fancyhdr}
-\pagestyle{fancy}
-\fancyhf{}
-\lhead{CS2105 --- Introduction to Computer Networks}
-\rhead{Page \thepage}
-\setlength{\headheight}{2em}
-\renewcommand{\headrulewidth}{2pt}
-
-\renewcommand{\labelenumii}{\theenumii}
-\renewcommand{\theenumii}{\theenumi.\arabic{enumii}.}
-\renewcommand{\labelenumiii}{\theenumiii}
-\renewcommand{\theenumiii}{\theenumii\arabic{enumiii}.}
-
+% Custom typesetting values
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{0.7em}
 \setlength{\abovedisplayskip}{0pt}
@@ -83,48 +97,32 @@
 \setlength{\belowdisplayshortskip}{0pt}
 \setlength{\mathindent}{0pt} % no indent for all math (including the align) environemnts
 
-\titlespacing\part{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
-\titlespacing\section{0pt}{5pt plus 2pt minus 2pt}{0pt plus 2pt minus 2pt}
-\titlespacing\subsection{0pt}{4pt plus 2pt minus 2pt}{-1pt plus 2pt minus 2pt}
-\titlespacing\subsubsection{0pt}{3pt plus 2pt minus 2pt}{0pt plus 2pt minus 2pt}
+% Custom commands
+\newcommand{\pageline}[1]{\par\noindent\rule{\textwidth}{#1}} % horizontal lines across a page
+\newcommand{\quoted}[1]{\textquotedblleft{#1}\textquotedblright} % proper double quotes
 
-\usepackage{etoolbox}
-\newcommand{\zerodisplayskips}{%
-  \setlength{\abovedisplayskip}{0pt}%
-  \setlength{\belowdisplayskip}{0pt}%
-  \setlength{\abovedisplayshortskip}{0pt}%
-  \setlength{\belowdisplayshortskip}{0pt}}
-\appto{\normalsize}{\zerodisplayskips}
-\appto{\small}{\zerodisplayskips}
-\appto{\footnotesize}{\zerodisplayskips}
+% Draw electronic configuration diagrams
+% https://tex.stackexchange.com/questions/372581/atomic-electronic-configuration-with-small-boxes
+\newcommand*\up{\fbox{$\mathord\upharpoonleft\phantom{\downharpoonright}$}}%
+\newcommand*\dwn{\fbox{$\mathord\downharpoonleft\phantom{\upharpoonright}$}}%
+\newcommand*\updwn{\fbox{$\upharpoonleft\downharpoonright$}}%
+\newcommand*\emp{\fbox{$\phantom{\downharpoonright}\phantom{\downharpoonright}$}}%
+\newcommand{\electron}[2]{{%
+        \setlength\tabcolsep{0pt}% remove extra horizontal space from tabular
+%       \setlength\fboxrule{0.2pt}% uncomment for original line width
+        \begin{tabular}{c}
+            \fboxsep=0pt\fbox{\fboxsep=3pt#2}\\[2pt]
+            #1
+        \end{tabular}%
+}}
 
-% Remove vertical spacing around verbatim
-\makeatletter
-\preto{\@verbatim}{\topsep=-4pt \partopsep=0pt}
-\makeatother
-
-% Horizontal lines across a page
-\newcommand{\pageline}[1]{\par\noindent\rule{\textwidth}{#1}}
-
-% Proper double quotes
-\newcommand{\quoted}[1]{\textquotedblleft{#1}\textquotedblright}
-
-% Unordered list modifications
-% Remove enumerate spacing with [leftmargin=*]
-\usepackage{enumitem}
-\setlist{nolistsep} % remove spacing in and around lists
-\setlist[itemize]{leftmargin=*} % remove natural first level indent
-\renewcommand{\labelitemi}{\textsc{--}} % change first level bullet to --
-
-% Drawing trees
-\usepackage[linguistics]{forest}
+\color{body}
+\pagecolor{background}
 
 \title{\vspace{-1cm}\textbf{CS2105 \\[0.25em] Introduction to Computer Networks} \\[2em] \Large AY2022/23 Semester 1 \\[1em]}
 \author{Notes by Jonathan Tay}
 \date{Last updated on \today}
 
-\color{body}
-\pagecolor{background} % remove this before printing!
 \begin{document}
     \pagenumbering{gobble} % remove page numbering for content pages
     \maketitle
