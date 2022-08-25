@@ -1,1 +1,109 @@
 \part{Transport Layer}
+
+Transport layer services deliver messages between processes on different hosts,
+while packet switches check the destination IP address for routing.
+
+The \textbf{sender} breaks messages into \textbf{segments}, and passes them to
+the \textit{network layer}.
+
+The \textbf{receiver} reassembles the segments into the message, and passes it
+the \textit{application layer}.
+
+
+\section{User Datagram Protocol (UDP)}
+UDP transmission is \textbf{unreliable} but fast, often used only by loss-tolerant and rate-sensitive
+applications, e.g. multimedia.
+
+UDP adds the following on top of IP:
+
+\begin{itemize}
+    \item \textbf{multiplexing} at sender,
+    \item \textbf{de-multiplexing} at receiver, and
+    \item \textbf{checksum} at sender and receiver.
+\end{itemize}
+
+At the receiver, every datagram with the same \textit{destination port number}
+will be directed to the \textit{same UDP socket}.
+
+UDP adds the following headers to each segment:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{source port number},
+    \item \textbf{destination port number},
+    \item \textbf{segment length}, and
+    \item \textbf{checksum}.
+\end{enumerate}
+
+UDP exists because it is:
+\begin{itemize}
+    \item \textbf{fast}: no connection establishment $\implies$ no delay,
+    \item \textbf{simple}: no connection state,
+    \item \textbf{small}: header size is small,
+    \item \textbf{unlimited}: no congestion control.
+\end{itemize}
+
+\subsection{UDP Checksum}
+Checksums are used to detect transmission errors in each segment, e.g. flipped bits.
+
+Steps to compute the checksum:
+\begin{enumerate}[leftmargin=*]
+    \item Partition the segment into 16-bit integers.
+    \item Perform \textbf{binary addition} with every integer.
+    \item Add any \textit{carry bits} to the next integer.
+    \item Take the 1s complement of the final integer to get the checksum.
+\end{enumerate}
+
+
+\section{Reliable Data Transfer (RDT)}
+The underlying network layer may \textit{corrupt}, \textit{drop}, \textit{re-order},
+or \textit{delay} packets during transmission --- it is \textbf{inherently unreliable}.
+
+RDT protocols aim to \textit{guarantee packet delivery} (in the order sent) and \textit{correctness}.
+
+RDT protocols are purely hypothetical --- they only form the basis for real-life implementations.
+
+\subsection{RDT 1.0}
+We assume that the underlying channel is \textit{perfectly reliable}.
+
+The sender sends data through the channel, and the receiver reads the data from the channel.
+
+\subsection{RDT 2.0}
+We introduce \textbf{bit errors} into the otherwise perfect underlying channel.
+
+Now the receiver has to validate the \textbf{checksum} to \textit{detect} bit errors,
+and reply with either of the following:
+
+\begin{itemize}
+    \item \textbf{acknowledgement} (ACK): if the packet was received correctly, or,
+    \item \textbf{negative acknowledgement} (NAK): if the packet was corrupted, requesting re-transmission.
+\end{itemize}
+
+The sender will re-transmit the packet after receiving an NAK, \textit{or} if either
+the ACK or NAK is corrupted.
+
+However, this is a \textbf{stop-and-wait} protocol, as the sender has to wait for each acknowledgement
+before sending the next packet.
+
+\subsection{RDT 2.1}
+Because ACKs can get corrupted, causing duplicate packets to be transmitted to the receiver in RDT 2.0,
+we add a \textbf{sequence number} to each packet.
+
+If the receiver identifies a duplicate packet, it simply \textit{discards} it --- not sending it
+to the application.
+
+\subsection{RDT 2.2}
+We want a \textbf{NAK-free} protocol --- such that the receiver \textit{only} sends ACKs.
+
+The NAKs are replaced by ACKs, and \textit{all} ACKs are appended with the sequence number of the last
+packet that was received correctly.
+
+If the sender receives \textit{duplicate} or \textit{corrupted} ACKs, it re-transmits the current packet.
+
+\subsection{RDT 3.0}
+We introduce \textbf{packet loss} and \textbf{delays} to the underlying channel.
+
+These are handled via \textbf{timeouts} which trigger re-transmission if an ACK is either
+corrupted, lost, or delayed.
+
+Because re-transmission may duplicate packets, we still use the sequence number to
+discard duplicate packets.
