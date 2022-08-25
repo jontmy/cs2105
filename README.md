@@ -13,7 +13,7 @@ View the compiled document [here](https://github.com/jontmy/cs2105/blob/master/s
 | Introduction                               | ✓          |
 | HTTP                                       | ✓          |
 | DNS, Socket Programming                    | ✓          |
-| UDP                                        |            |
+| UDP                                        | ✓          |
 | TCP, Reliable Transmission                 |            |
 | DHCP, IP Addressing                        |            |
 | NAT, ICMP, Routing                         |            |
