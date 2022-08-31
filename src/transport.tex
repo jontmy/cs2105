@@ -107,3 +107,143 @@ corrupted, lost, or delayed.
 
 Because re-transmission may duplicate packets, we still use the sequence number to
 discard duplicate packets.
+
+However, this has \textbf{low throughput} and \textbf{low utilization},
+because a sender spends most of its time waiting for an ACK.
+
+\subsection{Pipelined Protocols}
+We can increase throughput by \textbf{pipelining} --- sending multiple yet-to-be-acknowledged
+packets at a time.
+
+The \textbf{window size} controls the number of packets sent at a time.
+
+This increases the \textit{throughput} and \textit{utilization}, but at a cost:
+\begin{itemize}
+    \item increased range of sequence numbers
+    \item buffering at sender and receiver
+    \item increased design complexity
+\end{itemize}
+
+\subsubsection{Go-back-\emph{n} (GBN)}
+A GBN sender tracks 2 things:
+\begin{enumerate}
+    \item a \textbf{sliding window} of $n$ contiguous packets, and,
+    \item a \textbf{timer} for the oldest unACK'd packet, which is re-transmitted in the window when it expires.
+\end{enumerate}
+
+A GBN receiver demands that all packets are received in order:
+\begin{itemize}
+    \item \textbf{ACK} every successive packet that is received in order
+    \item \textbf{discard} every out-of-order packet (i.e. if packet $l$ is lost, every packet $> l$ is discarded until packet $l$ is received correctly)
+\end{itemize}
+
+GBN is also known as \textbf{cumulative ACK} --- an ACK means that every
+packet up to that point has been received correctly.
+
+GBN behaves exactly like RDT 3.0 when $n = 1$.
+
+The timeout has to be chosen correctly --- too short and it results in \textbf{premature timeouts},
+too large and the protocol becomes slow.
+
+\subsubsection{Selective Repeat (SR)}
+SR buffers out-of-order packets instead of dropping them.
+
+An SR receiver ACKs individual packets.
+
+An SR sender maintains a timer for each unACK'd packet, re-sending \textit{only that packet} 
+when its timer expires.
+
+However, the sliding window of the sender cannot advance past any unACK'd packet until
+it is ACK'd.
+
+
+\section{Transmission Control Protocol (TCP)}
+TCP has several characteristics:
+
+\begin{itemize*}
+    \keyitem{point-to-point}{one sender, one receiver}
+    \keyitem{connection-oriented}{handshakes before transmission}
+    \keyitem{full-duplex service}{bi-directional data flow}
+    \keyitem{reliable, in-order byte stream}{bytes are labelled by sequence numbers}
+\end{itemize*}
+
+Every TCP connection (socket) is identified by a tuple:
+\begin{enumerate}
+    \item the \textbf{source IP address},
+    \item the \textbf{source port number},
+    \item the \textbf{destination IP address}, and,
+    \item the \textbf{destination port number}.
+\end{enumerate}
+
+The \textbf{maximum segment size} is \textbf{1460 bytes}, but this is \textit{not inclusive} of 20 bytes
+for the \textbf{TCP packet headers}:
+
+\begin{enumerate*}
+    \keyitem*{source port number}{16 bits}
+    \keyitem*{destination port number}{16 bits}
+    \keyitem{sequence number \code{(seq)}}{32-bit byte number of the first byte in the segment}
+    \keyitem{acknowledgement number \code{(ack)}}{32-bit byte number of the next expected byte}
+    \keyitem{\code{ACK} bit \code{(A)}}{\code{1} if the ACK is in use, \code{0} otherwise}
+    \keyitem{\code{SYN} bit \code{(S)}}{\code{1} if this packet is establishing a new connection, \code{0} otherwise}
+    \keyitem{\code{FIN} bit \code{(F)}}{\code{1} if this packet is closing the connection, \code{0} otherwise}
+    \keyitem*{checksum}{32 bits}
+\end{enumerate*}
+
+\subsection{Connection}
+TCP employs a \textbf{3-way handshake} to \textit{establish a connection} before exchanging application data:
+
+\begin{enumerate*}
+    \keyitem{client $\to$ server}{\code{S = 1, seq = x}}
+    \keyitem{server $\to$ client}{\code{S = 1, seq = y, A = 1, ack = x + 1}}
+    \keyitem{client $\to$ server}{\code{A = 1, seq = x + 1, ack = y + 1, \\ data = ...}}
+\end{enumerate*}
+
+The client and server choose their \textbf{initial sequence numbers} \code{x} and \code{y}
+\textit{randomly} and \textit{independently}.
+
+To \textit{close a connection}:
+\begin{enumerate*}
+    \keyitem{client $\to$ server}{\code{F = 1, seq = x}}
+    \keyitem{server $\to$ client}{\code{A = 1, ack = u + 1}}
+    \keyitem{server $\to$ client}{\code{F = 1, seq = t}}
+    \keyitem{client $\to$ server}{\code{A = 1, ack = t + 1}}
+\end{enumerate*}
+
+\subsection{Acknowledgements}
+TCP is also a \textbf{cumulative ACK} protocol, but handling of out-of-order segments
+is implementation-dependent.
+
+Both the sender and receiver have a \textbf{buffer} for sent or received \textbf{segments}.
+
+A TCP sender tracks 2 things:
+\begin{enumerate*}
+    \item the \textbf{next sequence number}, which is the first byte of the next segment to send, and,
+    \item a \textit{single} \textbf{timer} for the oldest unACK'd packet, which is re-transmitted in the window when it expires.
+\end{enumerate*}
+
+There are 4 potential actions for a TCP receiver to take when it receives a segment:
+\begin{enumerate*}
+    \keyitem{in-order, first non-ACK'd segment}{delay ACK for up to 500ms for the next segment}
+    \keyitem{in-order, previous segment pending ACK}{send \textit{single} cumulative ACK, ACKing both segments}
+    \keyitem{out-of-order (gapped up) segment}{send \textit{duplicate} ACKs indicating the \code{seq} of the expected byte}
+    \keyitem{gap-fill segment}{send ACK if the packet fills the lowest end of the gap, otherwise it is still out-of-order, so repeat above.}
+\end{enumerate*}
+
+ACK packets can also contain data (\textbf{piggy-back}), which is useful for bi-directional communication
+as it halves the number of packets needed.
+
+\subsection{Timeout}
+The timeout interval is constantly computed based on the \textbf{estimated RTT}:
+
+\begin{boxed}[l]
+    $\code{RTT}_\code{est} = (1- \alpha) \ \code{RTT}_\code{est} + \alpha \ \code{RTT}_\code{sample}$ \\
+    $\code{RTT}_\code{dev} = (1- \beta) \ \code{RTT}_\code{dev} + \beta \  \left| \code{RTT}_\code{sample} - \code{RTT}_\code{est} \right| $ \\
+    $\code{timeout} = \code{RTT}_\code{est} + 4 \times \code{RTT}_\code{dev}$
+\end{boxed}
+
+Typically, $\alpha = 0.125$ and $\beta = 0.25$.
+
+The timeout interval has a \textbf{safety margin} factor of 4 $\code{RTT}_\code{dev}$.
+
+TCP also employs \textbf{fast retransmission} --- the sender resends segments immediately
+after receiving 4 ACKs for the same segment, assuming that they were lost.
