@@ -1,6 +1,6 @@
-# CS2105 #
+# [CS2105](https://github.com/jontmy/cs2105/blob/master/src/cs2105.pdf) #
 
-View the compiled notes [here](https://github.com/jontmy/cs2105/blob/master/src/cs2105.pdf).
+**View the compiled notes [here](https://github.com/jontmy/cs2105/blob/master/src/cs2105.pdf).**
 
 ## Introduction to Computer Networks ##
 
