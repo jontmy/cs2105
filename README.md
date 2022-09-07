@@ -15,7 +15,7 @@ View the compiled notes [here](https://github.com/jontmy/cs2105/blob/master/src/
 | DNS, Socket Programming                    | ✓          |
 | UDP                                        | ✓          |
 | TCP, Reliable Transmission                 | ✓          |
-| DHCP, IP Addressing                        |            |
+| DHCP, IP Addressing                        | ✓          |
 | NAT, ICMP, Routing                         |            |
 | Link Layer                                 |            |
 | Network Security                           |            |
