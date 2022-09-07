@@ -1,0 +1,122 @@
+\part{Network Layer}
+
+
+\section{IP Addresses}
+\textbf{IP addresses} are \textbf{32-bit integers} used to identify a host or router.
+
+Each host can have multiple IP addresses, each of which is associated with a single a \textbf{network interface}
+that sends and receives packets.
+
+This means that a device connected over Wi-Fi and Ethernet will have two IP addresses.
+
+\begin{defn}{converting binary to decimal notation}
+    An IP address can be written in \textbf{dotted decimal notation} where its 4 bytes
+    are converted into decimal values between \code{0} and \code{255}.
+
+    For example, \code{00000001 00000010 00000011 10000001} is written as \code{1.2.3.129}.
+\end{defn}
+
+IP addresses are assigned in 2 ways:
+\begin{enumerate}
+    \item manual configuration by a sysadmin, or,
+    \item automatic assignment by a \textbf{DHCP} server.
+\end{enumerate}
+
+\subsection{Dynamic Host Configuration Protocol (DHCP)}
+A \textbf{DHCP server} dynamically allocates IP addresses to hosts on a network.
+
+This allows IP addresses to be \textbf{renewable}, \textbf{reusable}, and \textbf{scalable}.
+
+DHCP runs on \textbf{UDP} ports 67 for the client and 68 for the server; chosen for its speed.
+
+\begin{defn}{DHCP process}
+    \vspace{0.75em}
+    \begin{enumerate}
+        \keyitem*{DHCP discover}{broadcasted by host}
+        \keyitem*{DHCP offer}{response from DHCP server}
+        \keyitem*{DHCP request}{from host to server}
+        \keyitem*{DHCP ACK}{reply from server with the IP address}
+    \end{enumerate}
+\end{defn}
+
+In the DHCP discovery message, the \textbf{arriving client} sends a broadcast using a \textbf{special IP} \code{0.0.0.0}
+on port \code{68} in its \code{src} field because it has yet to be assigned a valid IP address.
+
+It also uses the \textbf{broadcast address} \code{255.255.255.255} in its \code{dest} field,
+which means all hosts on the same \textbf{subnet} will receive the message.
+
+However, only the \textbf{DHCP servers} running on port \code{67} will respond with their \textbf{DHCP offers}.
+
+\begin{defn}{DHCP message fields}
+    \vspace{0.75em}
+    \begin{enumerate}
+        \keyitem*{\code{src}}{source IP address}
+        \keyitem*{\code{dest}}{destination IP address}
+        \keyitem*{\code{yiaddr}}{proposed IP address for the client}
+        \keyitem*{\code{transaction}}{sequence number for the request}
+        \keyitem*{\code{lifetime}}{duration the offer is valid for}
+    \end{enumerate}
+\end{defn}
+
+\code{yiaddr} is proposed by the server during the DHCP offer, after which the arriving client
+sends a DHCP request with it in its \code{yiaaddr} field as well.
+
+Because there may be multiple DHCP servers, the arriving client will receive multiple DHCP offers.
+
+The client has to broadcast its decision to \code{255.255.255.255} in the \code{dest} field of the DHCP request
+so that all the other servers can rescind their offers.
+
+DHCP can also provide additional network information:
+\begin{enumerate}
+    \item the IP address of the \textbf{default gateway} (first-hop router),
+    \item the IP address of the local DNS server, and,
+    \item the \textbf{network mask} 
+\end{enumerate}
+
+\subsection{Special IP Addresses}
+Special IP addresses are \textit{ranges} in the form \code{a.b.c.d/x}.
+
+The number represented by \code{x} indicates the number of bits in the \textbf{network prefix}
+which are fixed to that range --- the remaining \code{32} $-$ \code{x} bits are the \textbf{host ID}.
+
+\begin{defn}{special addresses}
+    \begin{tblr}{lX}
+        \textbf{\code{0.0.0.0/8}} & non-routable meta-address \\ \hline
+        \textbf{\code{127.0.0.0/8}} & loopback address, aka. \textbf{\code{localhost}} \\ \hline
+        \textbf{\code{10.0.0.0/8}} & \SetCell[r=3]{l} \textbf{private addresses} \\
+        \textbf{\code{172.16.0.0/12}} \\
+        \textbf{\code{192.168.0.0/16}} \\ \hline
+        \textbf{\code{255.255.255.255/32}} & \textbf{broadcast address} \\
+    \end{tblr}
+\end{defn}
+
+Private IP addresses are \textit{not globally unique}, and are used for \textit{internal networks}.
+
+They do not require coordination with IANA or any Internet registry, but \textbf{network address translation}
+is needed to use them on the public Internet.
+
+Network prefixes identify a \textbf{subnet}, where a group of hosts are directly connected by cables.
+
+Hosts within the same subnet can communicate without the need for a router.
+
+\subsection{Classless Inter-domain Routing (CIDR)}
+IP address assignment is not random; CIDR is the assignment strategy of IP addresses
+using \textbf{heirarchical addressing}:
+
+Routers map \textit{blocks} of IP addresses to a single next-hop router in a \textbf{routing/forwarding table},
+rather than mapping each individual IP address.
+
+IP addresses are bought from registries or rented from an ISP's address space, who in turn get them from ICANN.
+
+The \textbf{subnet (network) prefix} of IP addresses are of arbitrary length, and are assigned by the ISP.
+
+\begin{defn}{subnet mask}
+    \textbf{Subnet masks} are 32-bit integers used to determine the subnet of an IP address.
+
+    The subnet prefix bits are set to \code{1} and the host ID bits are set to \code{0}.
+
+    For example, for the IP address \code{200.23.16.42/23}, the subnet mask is 
+    \code{11111111 11111111 11111110 00000000}.
+
+    Its decimal equivalent is \code{255.255.254.0}.
+\end{defn}
