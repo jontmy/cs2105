@@ -223,10 +223,10 @@ A TCP sender tracks 2 things:
 
 There are 4 potential actions for a TCP receiver to take when it receives a segment:
 \begin{enumerate*}
-    \keyitem{in-order, first non-ACK'd segment}{delay ACK for up to 500ms for the next segment}
-    \keyitem{in-order, previous segment pending ACK}{send \textit{single} cumulative ACK, ACKing both segments}
-    \keyitem{out-of-order (gapped up) segment}{send \textit{duplicate} ACKs indicating the \code{seq} of the expected byte}
-    \keyitem{gap-fill segment}{send ACK if the packet fills the lowest end of the gap, otherwise it is still out-of-order, so repeat above.}
+    \keyitem{in-order, first non-ACK'd segment}{delay ACK for up to 500ms for the next segment, otherwise ACK with \code{ack = seq + len(data)}, which is equivalent to the next expected byte}
+    \keyitem{in-order, previous segment pending ACK}{send \textit{single} cumulative ACK, ACKing both segments with \code{ack = seq} of the next expected byte}
+    \keyitem{out-of-order (gapped up) segment}{send \textit{duplicate} ACKs with \code{ack = seq} of the expected byte}
+    \keyitem{gap-fill segment}{send ACK with \code{ack = seq} of the next expected byte if the packet fills the lowest end of the gap, otherwise it is still out-of-order, so repeat above.}
 \end{enumerate*}
 
 ACK packets can also contain data (\textbf{piggy-back}), which is useful for bi-directional communication
