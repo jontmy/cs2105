@@ -1,5 +1,5 @@
 \documentclass{article}
-% preamble v3.1
+% preamble v3.2
 
 % Layout packages
 \usepackage{geometry}
@@ -101,6 +101,36 @@
 \newenvironment{itemize*}{\begin{itemize}[itemsep=0.5em]}{\end{itemize}}
 \newenvironment{enumerate*}{\begin{enumerate}[itemsep=0.5em]}{\end{enumerate}}
 \renewenvironment{boxed}[1][c]{\begin{tblr}{hlines, vlines, colspec={Y[#1]}}}{\end{tblr}}
+
+% https://tex.stackexchange.com/questions/247185/tcolorbox-theorem-which-isnt-framed-on-the-sides
+\usepackage{tcolorbox}
+\tcbuselibrary{theorems}
+\tcbuselibrary{skins}
+\newtcbtheorem[]{thm}{}{
+    theorem style=change apart,
+    description delimiters none,
+    enhanced,
+    frame hidden,interior hidden,
+    sharp corners,
+    boxrule=0pt,
+    left=0.2cm,right=0.2cm,
+    toptitle=0.1cm+1pt,
+    bottomtitle=-0.05cm+0.5em,
+    colframe=body,colback=white,coltitle=white,
+    title style=body,
+    bottomrule=1pt,
+    borderline south={1pt}{0pt}{body},
+    fonttitle=\bfseries,fontupper=\normalsize
+}{thm}
+\newenvironment{defn}[1]{
+    \begin{thm*}{#1}\color{body}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0.75em}
+    \setlength{\abovedisplayshortskip}{0pt}
+    \setlength{\belowdisplayshortskip}{0.75em}
+    \setlength{\parskip}{0.5em}
+    \vspace{-\parskip}
+}{\end{thm*}}
 
 \color{body}
 \pagecolor{background}
