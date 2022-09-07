@@ -1,5 +1,5 @@
 \documentclass{article}
-% preamble v3.2
+% preamble v3.3
 
 % Layout packages
 \usepackage{geometry}
@@ -8,6 +8,7 @@
 \setlength\columnsep{20pt} % the default columnsep for all pages
 \usepackage[none]{hyphenat} % no line breaking on words
 \usepackage{parskip} % typical paragraphs - no indent, vertical space between paragrahs
+\usepackage{titlesec} % reduced vertical space around section titles
 
 % Alter typesetting of headers and footers
 \usepackage{fancyhdr}
@@ -152,8 +153,9 @@
     \newpage
     \pagenumbering{arabic} % re-add page numbering
     \begin{multicols*}{2}
-        \input{introduction.tex}
-        \input{application.tex}
-        \input{transport.tex}
+        \include{introduction.tex}
+        \include{application.tex}
+        \include{transport.tex}
+        \include{network.tex}
     \end{multicols*}
 \end{document}
