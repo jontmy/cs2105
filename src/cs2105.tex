@@ -132,6 +132,14 @@
     \setlength{\parskip}{0.5em}
     \vspace{-\parskip}
 }{\end{thm*}}
+\newenvironment{defn*}[1]{
+    \begin{thm*}{#1}\color{body}
+    \setlength{\abovedisplayskip}{0pt}
+    \setlength{\belowdisplayskip}{0.75em}
+    \setlength{\abovedisplayshortskip}{0pt}
+    \setlength{\belowdisplayshortskip}{0.75em}
+    \setlength{\parskip}{0.5em}
+}{\end{thm*}}
 
 \color{body}
 \pagecolor{background}
