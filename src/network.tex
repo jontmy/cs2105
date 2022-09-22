@@ -1,7 +1,54 @@
 \part{Network Layer}
 
 
-\section{IP Addresses}
+\section{Routing}
+Routing is done heirarchically through \textbf{autonomous systems} of routers and links
+owned by ISPs.
+
+Routing within an autonomous system is known as \textbf{intra-AS} routing.
+
+There are 2 classes of routing algorithms:
+\begin{enumerate*}
+    \keyitem{link-state algorithms}{every router has complete knowledge of the network topology,
+    as they all broadcast link costs periodically}
+    \keyitem{distance-vector algorithms}{routers only know their direct neighbors and their link costs,
+    and they have to exchange \textbf{local views} with neighbors and update their own}
+\end{enumerate*}
+
+\begin{defn}{abstracting network topology}
+    A network can be viewed as a graph:
+    \begin{itemize}
+        \keyitem*{vertices}{routers}
+        \keyitem*{edges}{physical links between routers}
+        \keyitem*{costs}{either constant, or inversely related to bandwidth}
+    \end{itemize}
+
+    Routing involves finding the \textbf{least-cost path} between two vertices:
+    \begin{itemize*}
+        \keyitem{\code{c(x, y)}}{link cost between routers \code{x} and \code{y}, 
+        or $\infty$ if \code{x} and \code{y} are not \textbf{direct neighbors}}
+        \keyitem{\code{d}$_\code{x}$\code{(y) = min}$_\code{v}$\code{\{c(x, v) + d}$_\code{v}$\code{(y)\}}}
+        {least-cost path from \code{x} to \code{y}, where \code{min} is taken over all direct neighbors of \code{x}}
+    \end{itemize*}
+\end{defn}
+
+\begin{defn*}{updating local views}
+    \begin{enumerate*}
+        \item Every router sends its distance vectors to its direct neighbors.
+        \item If a router receives a distance vector from a neighbor, and finds a shorter path to another router, it updates its own local view.
+        \item After several iterations, all routers will have the same local view.
+    \end{enumerate*}
+\end{defn*}
+
+\subsection{Routing Information Protocol (RIP)}
+RIP implements the distance-vector algorithm, using \textbf{hop count} as the cost metric,
+and runs over UDP every 30 seconds, with \textbf{self-repair} assuming that
+a neighbor without an update after 3 seconds has failed.
+
+
+\section{Internet Protocol (IPv4)}
+
+\subsection{IP Addresses}
 \textbf{IP addresses} are \textbf{32-bit integers} used to identify a host or router.
 
 Each host can have multiple IP addresses, each of which is associated with a single a \textbf{network interface}
@@ -22,7 +69,7 @@ IP addresses are assigned in 2 ways:
     \item automatic assignment by a \textbf{DHCP} server.
 \end{enumerate}
 
-\subsection{Dynamic Host Configuration Protocol (DHCP)}
+\subsubsection{Dynamic Host Configuration Protocol (DHCP)}
 A \textbf{DHCP server} dynamically allocates IP addresses to hosts on a network.
 
 This allows IP addresses to be \textbf{renewable}, \textbf{reusable}, and \textbf{scalable}.
@@ -73,7 +120,7 @@ DHCP can also provide additional network information:
     \item the \textbf{network mask} 
 \end{enumerate}
 
-\subsection{Special IP Addresses}
+\subsubsection{Special IP Addresses}
 Special IP addresses are \textit{ranges} in the form \code{a.b.c.d/x}.
 
 The number represented by \code{x} indicates the number of bits in the \textbf{network prefix}
@@ -99,7 +146,7 @@ Network prefixes identify a \textbf{subnet}, where a group of hosts are directly
 
 Hosts within the same subnet can communicate without the need for a router.
 
-\subsection{Classless Inter-domain Routing (CIDR)}
+\subsubsection{Classless Inter-domain Routing (CIDR)}
 IP address assignment is not random; CIDR is the assignment strategy of IP addresses
 using \textbf{heirarchical addressing}:
 
@@ -120,3 +167,55 @@ The \textbf{subnet (network) prefix} of IP addresses are of arbitrary length, an
 
     Its decimal equivalent is \code{255.255.254.0}.
 \end{defn}
+
+\subsubsection{Network Address Translation (NAT)}
+\textbf{Private IP addresses}, unlike public IP addresses, are not globally unique and cannot be used as
+destination IP addresses for routing.
+
+A \textbf{NAT router} bridges the gap between local networks and the Internet by replacing
+private IP addresses and port numbers with its own.
+
+It does this for all outgoing datagrams, and remembers and undoes the replacement for incoming packets
+using a \textbf{NAT translation table}.
+
+
+\subsection{IPv4 Headers}
+\textbf{Maximum transfer unit} (MTU) is the maximum size of a datagram that can be sent over a link.
+
+IP datagrams which are too large may be \textbf{fragmented} by routers and \textbf{reassembled} at the receiver.
+
+\begin{defn}{IP fragmentation}
+    All fragments of an IP segment have the same ID.
+
+    The flag is set to \code{0} if it is the last fragment in the segment,
+    and \code{1} otherwise.
+
+    The offset is the number of 8-byte blocks of data (excluding the headers) from the start.
+\end{defn}
+
+Therefore, the IPv4 header is 20 bytes long:
+
+\begin{tblr}{
+    colspec = {|llX|},
+    row{1} = {font=\bfseries},
+    cell{4}{3} = {r=3}{l},
+} \hline
+    field & bits & description \\ \hline
+    version & 1 & always 4 for IPv4 \\
+    total length & 16 & length of the entire datagram (headers + data) \\ \hline[dashed]
+    identifier & 16 & for fragmentation/reassembly \\
+    flags & 3 \\
+    fragment offset & 13 \\ \hline[dashed]
+    time-to-live & 8 & number of remaining hops, decremented by 1 at each router, and discarded if 0 \\
+    protocol & 8 & identifies the protocol used by the transport layer, e.g. TCP/UDP \\
+    checksum & 16 & computed for the header only \\ \hline[dashed]
+    source & 32 & sender IP address  \\ \hline[dashed]
+    destination & 32 & receiver IP address \\ \hline
+\end{tblr}
+
+
+\section{Internet Control Message Protocol (ICMP)}
+ICMP is used by hosts and routers to communicate network-level information,
+such as error reports and echos.
+
+ICMP is carried in IP datagrams and has its own set of headers which are appended after the IP headers.
