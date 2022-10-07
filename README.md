@@ -16,7 +16,7 @@
 | UDP                                        | ✓          |
 | TCP, Reliable Transmission                 | ✓          |
 | DHCP, IP Addressing                        | ✓          |
-| NAT, ICMP, Routing                         |            |
+| NAT, ICMP, Routing                         | ✓          |
 | Link Layer                                 |            |
 | Network Security                           |            |
 | Physical Layer                             |            |
