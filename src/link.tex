@@ -1,0 +1,227 @@
+\part{Link Layer}
+
+The \textbf{link layer} sends datagrams between \textit{adjacent} nodes
+(hosts or routers) over a single link.
+
+IP datagrams are encapsulated in \textbf{frames}.
+
+The link layer is implemented in hardware adapters (network interface cards) or on a chip.
+
+
+\section{Error Detection and Correction}
+Links may be \textbf{error-prone}.
+
+\textbf{Error detection and correction bits} (\code{EDC}) are appended to the \textbf{data bits} (\code{D})
+before transmission across a link.
+
+However, \textbf{error detection schemes} are not 100\% reliable --- they may not detect all errors,
+but a larger \code{EDC} increases the probability of detecting errors.
+
+There are 3 popular error detection schemes:
+\begin{enumerate}
+    \keyitem{parity checking}{works well mathematically, but not in practice as errors are clustered together}
+    \keyitem*{checksums}{used in TCP/UDP/IP}
+    \keyitem*{cyclic redundancy checking}{used in the link layer}
+\end{enumerate}
+
+\subsection{Parity Checking}
+\begin{defn}{1D parity checking}
+    Include an additional \textbf{parity bit}.
+
+    For \textbf{even parity}, the parity bit is set to \code{0} if the number of 1s in the data bits is even,
+    and \code{1} otherwise.
+
+    For \textbf{odd parity}, the parity bit is set to \code{1} if the number of 1s in the data bits is even,
+    and \code{0} otherwise.
+\end{defn}
+
+\begin{defn}{2D parity checking}
+    If the data bits are arranged in a \textbf{2D matrix} with $i$ rows and $j$ columns,
+    then we can compute each row and column parity.
+
+    In addition, we can compute the parity bit for the column and row parity bits,
+    for a total of $i + j + 1$ parity bits.
+\end{defn}
+
+1D parity checking can \textit{detect} \textbf{single bit errors}
+(or any odd number of them), but not correct them.
+
+2D parity checking can \textit{detect and correct} \textbf{single bit errors},
+by intersecting the error row and column.
+
+In addition, it can \textit{detect} \textbf{two-bit errors}, but not correct them.
+
+\subsection{Cyclic Redundancy Checking (CRC)}
+\begin{defn}{non-binary cyclic redundancy checking}
+    First, some terminology:
+    \begin{itemize}
+        \keyitem*{\code{D}}{a non-binary number to transfer}
+        \keyitem*{\code{R}}{an $r$-digit error detection code}
+        \keyitem*{\code{G}}{an $r$-digit \textbf{generator} known to both sender and receiver}
+    \end{itemize}
+
+    To transmit the new message \code{M}:
+    \begin{enumerate}
+        \item Create a new number \code{D'} by appending \code{9}, $r$ times, to \code{D}.
+        \item Find the remainder $y$ of \code{D'} divided by \code{G}.
+        \item Transmit \code{M = D' - y}.
+    \end{enumerate}
+
+    Notice how \code{M} is divisible by \code{G} --- the receiver can calculate the new remainder $y'$,
+    and discard the message if $y' \neq 0$.
+\end{defn}
+
+\begin{defn}{binary cyclic redundancy checking}
+    First, some terminology:
+    \begin{itemize}
+        \keyitem*{\code{D}}{binary data bits}
+        \keyitem*{\code{R}}{an $r$-bit error detection code}
+        \keyitem*{\code{G}}{an $r + 1$-bit \textbf{generator} known to both sender and receiver}
+    \end{itemize}
+
+    All calculations are done \textbf{modulo 2}, to avoid carries for addition and borrows for subtraction
+    --- now identical to \code{XOR}.
+
+    To transmit the new message \code{M}:
+    \begin{enumerate}
+        \item Create a new number \code{D'} by appending \code{0}, $r$ times, to \code{D}.
+        \item Find the remainder of \code{D'} divided by \code{G}, which is used as \code{R}.
+        \item Transmit \code{M = (D, R)}, which is \code{R} appended to \code{D}.
+    \end{enumerate}
+
+    Now, the receiver divides \code{M} by \code{G} and checks if the remainder is \code{0}.
+
+    A non-zero remainder indicates an error.
+\end{defn}
+
+CRC's error detection capabilities:
+\begin{itemize}
+    \keyitem*{single bit errors}{all odd numbers of errors}
+    \keyitem*{burst errors < \code{r+1}-bits}{all such errors}
+    \keyitem*{burst errors > \code{r}-bits}{probability $1- 0.5^r$}
+\end{itemize}
+
+CRC is also easy to implement on hardware due to the modulo-2 arithmetic.
+
+
+\section{Link Access Control}
+\textbf{Point-to-point links} connect a sender and receiver directly ---
+there is no need for multiple access control.
+
+\textbf{Broadcast links} connect multiple nodes to a single shared broadcast channel.
+
+Every node receives a copy of every broadcasted link, causing \textbf{collision}
+if two signals are received simultaneously.
+
+\begin{defn}{ideal multiple access control}
+    Given a broadcast channel of rate $R$ bps, the muliple access control protocol should be:
+    \begin{enumerate}
+        \item \textbf{collision-free}
+        \keyitem*{efficient}{a single transmitting node should send at rate $R$}
+        \keyitem*{fair}{each transmitting node among $M$ nodes should send at an average rate $R / M$}
+        \keyitem*{decentralized}{no coordination between nodes}
+    \end{enumerate}
+
+    In addition, \textbf{channel sharing coordination} \textit{must use the channel itself}
+    --- no other out-of-band channel.
+\end{defn}
+
+\subsection{Channel Partitioning Protocols}
+
+\begin{defn}{time division multiple access (TDMA)}
+    Let there be $n$ nodes.
+
+    Each node is equally allocated a \textbf{time slot} of length $T$,
+    spanning a \textbf{time frame} of length $n \cdot T$, during which they get access
+    to the channel; outside of which they are \textbf{idle}.
+\end{defn}
+
+\begin{defn}{frequency division multiple access (FDMA)}
+    FDMA is akin to TDMA but with \textbf{frequency bands} instead of time slots.
+\end{defn}
+
+TDMA and FDMA are \textit{collision-free}, \textit{perfectly fair}, \textit{decentralized},
+but \textbf{inefficient} as unusued slots are wasted.
+
+\subsection{Controlled Access Protocols}
+
+\begin{defn}{polling protocol}
+    One node is designated as the \textbf{master node}.
+
+    The master node polls each \textbf{slave node} in turn, allowing it to transmit
+    a pre-determined maximum number of frames.
+\end{defn}
+
+Polling is \textit{collision-free}, \textit{efficient}, \textit{perfectly fair},
+but \textbf{not decentralized} as the master node results in a single point of failure.
+
+\begin{defn}{token passing protocol}
+    In a ring network topology, a special \textbf{token} frame, is passed between
+    nodes sequentially.
+
+    The node possessing the token can transmit a pre-determined maximum number of frames
+    before forwarding the token.
+\end{defn}
+
+Token-passing is \textit{collision-free}, \textit{efficient}, \textit{perfectly fair}, and \textbf{decentralized}.
+
+However, a \textbf{token loss} and a single \textbf{node failure} can be disruptive.
+
+\subsection{Random Access Protocols}
+A node with data to send should be able to transmit at full channel data rate $R$,
+with \textbf{no \textit{a priori} coordination}.
+
+Random access protocols must \textit{detect} and \textit{recover} from collisions.
+
+\begin{defn}{slotted ALOHA}
+    Like TDMA, time is divided into slots of length $L / R$, and synchronized at each node.
+
+    Nodes transmit only at the beginning of a slot, re-transmitting in the event of a collision
+    in each subsequent slot with probability $p$.
+\end{defn}
+
+Slotted ALOHA is \textit{collision-free}, \textit{fair} and \textit{decentralized},
+but \textbf{inefficient} when many nodes are active due to collision and empty slots ---
+resulting in a maximum 37\% maximum efficiency.
+
+\begin{defn}{pure (unslotted) ALOHA}
+    No synchonization and time slots are needed --- nodes transmit immediately at any time.
+
+    In the event of a collision, they wait for a 1-frame transmission time 
+    before re-transmitting with probability $p$.
+\end{defn}
+
+Unslotted ALOHA is worse than slotted ALOHA with 18\% maximum efficiency as collision probability
+is higher.
+
+In general, ALOHA is flawed as transmission decision is made independently of other nodes.
+
+\begin{defn}{CSMA}
+    Nodes defer transmission if the channel is busy, and transmit immediately if it is idle.
+\end{defn}
+
+Collisions still occur due to propagation delay.
+
+Both ALOHA and CDMA are flawed, in that they do not stop transmitting when collision is detected.
+
+\begin{defn}{CSMA/CD}
+    Like CSMA, but abort transmission if collision is detected, and re-transmit after a random delay,
+    determined by \textbf{binary exponential backoff}:
+
+    \begin{enumerate}
+        \item after a collision, choose $k \in \{0, 1\}$
+        \item wait $k$ time units before re-transmitting
+        \item after another collision, choose $k' \in \{0, 1, 2, 2^2 - 1\}$
+        \item wait $k'$ time units before re-transmitting
+        \item after $m$ collisions, choose $k'' \in \{0, 1, 2, 2^2 - 1, \dots, 2^m - 1\}$
+        \item wait $k''$ time units before re-transmitting
+    \end{enumerate}
+
+    The time unit is 512-bit transmission time for Ethernet.
+
+    A \textbf{minimum frame size} (64 bytes for Ethernet) is imposed to ensure increase
+    the chance that collision is detected.
+\end{defn}
+
+Both CSMA and CSMA/CD \textit{efficient}, \textit{fair} and \textit{decentralized},
+but \textbf{not collision-free}.
