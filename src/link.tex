@@ -163,7 +163,7 @@ but \textbf{not decentralized} as the master node results in a single point of f
     before forwarding the token.
 \end{defn}
 
-Token-passing is \textit{collision-free}, \textit{efficient}, \textit{perfectly fair}, and \textbf{decentralized}.
+Token-passing is \textit{collision-free}, \textit{efficient}, \textit{perfectly fair}, and \textit{decentralized}.
 
 However, a \textbf{token loss} and a single \textbf{node failure} can be disruptive.
 
@@ -180,9 +180,10 @@ Random access protocols must \textit{detect} and \textit{recover} from collision
     in each subsequent slot with probability $p$.
 \end{defn}
 
-Slotted ALOHA is \textit{collision-free}, \textit{fair} and \textit{decentralized},
-but \textbf{inefficient} when many nodes are active due to collision and empty slots ---
-resulting in a maximum 37\% maximum efficiency.
+Slotted ALOHA is \textit{fair} and \textit{decentralized}, but \textbf{not collision free}.
+
+It is also \textbf{efficient-by-definition} when there is only 1 node, 
+but only 37\% efficient otherwise, as slots are wasted by collision and by being empty.
 
 \begin{defn}{pure (unslotted) ALOHA}
     No synchonization and time slots are needed --- nodes transmit immediately at any time.
@@ -194,9 +195,9 @@ resulting in a maximum 37\% maximum efficiency.
 Unslotted ALOHA is worse than slotted ALOHA with 18\% maximum efficiency as collision probability
 is higher.
 
-In general, ALOHA is flawed as transmission decision is made independently of other nodes.
+In general, ALOHA is flawed, as transmission decision is made independently of other nodes.
 
-\begin{defn}{CSMA}
+\begin{defn}{carrier sense multiple access (CSMA)}
     Nodes defer transmission if the channel is busy, and transmit immediately if it is idle.
 \end{defn}
 
@@ -204,7 +205,7 @@ Collisions still occur due to propagation delay.
 
 Both ALOHA and CDMA are flawed, in that they do not stop transmitting when collision is detected.
 
-\begin{defn}{CSMA/CD}
+\begin{defn}{CSMA/CD (collision detection)}
     Like CSMA, but abort transmission if collision is detected, and re-transmit after a random delay,
     determined by \textbf{binary exponential backoff}:
 
@@ -225,3 +226,149 @@ Both ALOHA and CDMA are flawed, in that they do not stop transmitting when colli
 
 Both CSMA and CSMA/CD \textit{efficient}, \textit{fair} and \textit{decentralized},
 but \textbf{not collision-free}.
+
+
+\section{Media Access Control (MAC)}
+All nodes receive all frames in the same broadcast channel.
+
+Thus, adapters filter received frames by their destination MAC address,
+passing only those addressed to itself to the network layer.
+
+\begin{defn}{MAC addresses}
+    Every adapter has a \textbf{MAC address} --- a \textbf{48 bit hexadecimal sequence} 
+    burned into ROM.
+
+    The \textbf{first 24 bits} are allocated by IEEE and reserved for vendor identification.
+
+    The \textbf{broadcast address} is \code{FF-FF-FF-FF-FF-FF}.
+
+    Use \code{ifconfig} to find the MAC address of an adapter.
+\end{defn}
+
+
+\section{Ethernet}
+\textbf{Local area network (LAN)} is a computer network within a geographical area.
+
+\textbf{Wi-Fi} (IEEE 802.11) and \textbf{Ethernet} (IEEE 802.3) are the most common LAN technologies.
+
+\begin{defn}{Ethernet frame structure}
+    \begin{tblr}{hlines, vlines}
+        preamble & \code{dst} & \code{src} & type & data... & \code{CRC} \\
+        8B & 6B & 6B & 2B & 46-1500B & 4B
+    \end{tblr}
+\end{defn}
+
+The data size is upper bounded by the link \textbf{maximum transmission unit (MTU)},
+and lower bounded to ensure collision detection.
+
+Ethernet uses \textbf{CRC-32} using a 32-bit generator.
+
+The type field is necessary to specify the network layer protocol, which allows
+Ethernet to multiplex different network layer protocols.
+
+\begin{defn}{preamble sequence}
+    Each frame has a \textbf{preamble} starting with 7 bytes of \code{10101010}, or $\code{AA}_\code{hex}$,
+    which is used as a wake-up signal.
+
+    The last byte in the preamble is \code{10101011}, or $\code{AB}_\code{hex}$, which
+    serves as a delimiter indicating the start of the frame.
+
+    The square wave pattern of the first 7 bytes synchronize the sender's and receiver's clock rates.
+\end{defn}
+
+Ethernet is \textbf{unreliable} as no acknowledgements are sent --- dropped frames are recovered
+only by a higher layer protocol.
+
+Ethernet uses \textbf{CSMA/CD} with exponential backoff.
+
+\subsection{Topology}
+
+\begin{defn}{bus topology}
+    A single backbone coaxial cable to interconnect all nodes
+    in a \textbf{broadcast LAN} with several drawbacks:
+
+    \begin{enumerate}
+        \item backbone cable is a single point of failure,
+        \item difficult to troubleshoot,
+        \item slow and not ideal for larger networks due to collision
+    \end{enumerate}
+\end{defn}
+
+\begin{defn}{star topology}
+    Nodes are connected to either \textbf{hubs} or \textbf{switches}.
+    
+    A hub is a \textbf{physical layer device} which re-creates the \textit{bits} received,
+    and boosts their signal to all nodes, but very slow and not ideal for larger networks.
+
+    A switch \textbf{link layer device} which stores and forwards \textit{frames} with no collisions,
+    and are much faster than hubs.
+\end{defn}
+
+\subsection{Ethernet Switches}
+Ethernet switches employ \textbf{selective forwarding} to forward frames only to single or multiple
+outgoing links via \textbf{CSMA/CD} depending on the destination MAC address.
+
+Switches have other benefits:
+\begin{itemize*}
+    \keyitem{transparency}{no frames are addressed to the switch, hosts remain unaware of their presence}
+    \keyitem{plug-and-play}{no configuration needed}
+    \keyitem{simultaneous transmission}{every node has a dedicated, direct, and \textit{buffered} link \textbf{interface} using Ethernet to the switch --- no collisions!}
+    \keyitem{interconnectivity}{switches can be connected in a heirarchy to form a LAN, with a router connected to the root switch}
+\end{itemize*}
+
+\begin{defn}{selective forwarding}
+    A switch knows that a host is reachable via an interface using a \textbf{switch table}.
+
+    Every entry consists of the \textbf{host MAC address}, \textbf{interface number}, and \textbf{TTL}.
+
+    To \textit{populate} the switch table, it has to employ \textbf{self-learning} by recording entries for every incoming frame.
+
+    To \textit{forward} a frame to a \textit{known} host, the switch looks up the destination MAC address in the switch table,
+    and forwards the frame to the corresponding interface: (\textbf{forwarding}).
+
+    To forward a frame to an \textit{unknown} host, the switch broadcasts the frame to all interfaces except the incoming one: (\textbf{flooding}).
+
+    There is one exception: a switch receiving a frame on an interface that it would forward it back onto is simply dropped: (\textbf{filtering}).
+\end{defn}
+
+
+\section{Address Resolution Protocol (ARP)}
+
+\textbf{ARP} is used to determine the MAC address of a host given its IP address.
+
+\begin{defn}{ARP tables}
+    Every IP node maintains an \textbf{ARP table} which maps IP addresses to MAC addresses
+    within a subnet, and can be listed with \code{arp}.
+
+    Every entry has a TTL, usually in the order of minutes.
+\end{defn}
+
+ARP is \textbf{plug-and-play} --- nodes create their ARP tables without intervention from
+a network administrator.
+
+\begin{defn}{ARP queries}
+    If \code{A} does not have \code{B}'s MAC address in its ARP table, it broadcasts an \textbf{ARP query
+    packet} containing \code{B}'s IP address to the subnet.
+
+    This query packet has the destination MAC address set to the broadcast address \code{FF-FF-FF-FF-FF-FF}.
+
+    All nodes in the subnet receive the query, but \textit{only} \code{B} responds with its MAC address
+    by sending it as a \textbf{reply frame}.
+\end{defn}
+
+ARP queries are used to determine destination MAC addresses if they aren't already cached in the ARP table,
+and used when sending frames in the \textit{same subnet}.
+
+\begin{defn}{sending frames outside of a subnet}
+    Suppose host \code{A} wants to send a frame to host \code{B} in a different subnet, via a router \code{R}.
+
+    \code{A} will send the frame to \code{R} with the destination MAC address of the \textit{receiving interface}
+    at \code{R}.
+
+    The IP datagram will have the destination IP address of \code{B}.
+
+    At \code{R}, it will create the link-layer frame with the destination MAC address of \code{B} and
+    source MAC address of the \textit{transmitting interface} at \code{R}.
+
+    The Ethernet frames change between links, but the IP datagrams do not, as IP is end-to-end.
+\end{defn}
