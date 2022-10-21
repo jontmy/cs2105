@@ -1,0 +1,183 @@
+\part{Network Security}
+
+The tenets of network security are:
+\begin{itemize*}
+    \keyitem*{confidentiality}{only the sender and intended receiver should understand message contents}
+    \keyitem*{authentication}{sender and receiver want to confirm the other's identity}
+    \keyitem*{message integrity}{messages should not be altered without detection}
+    \keyitem*{access and availability}{services must be accessible and available to users}
+\end{itemize*}
+
+\section{Cryptography}
+Cryptographic techniques allow senders to encrypt data (\textbf{ciphertext}) and receivers 
+to recover the original data (\textbf{plaintext}).
+
+A \textbf{key} is a string of input numbers or characters to the encryption or decryption algorithm:
+\begin{itemize*}
+    \keyitem*{$m$}{plaintext message}
+    \keyitem*{$K_A()$}{encryption algorithm with key $K_A$, such that $K_A(m)$ is the ciphertext}
+    \keyitem*{$K_B()$}{decryption algorithm with key $K_B$, such that $K_B(K_A(m)) = m$}
+\end{itemize*}
+
+\subsection{Symmetric Key Cryptography}
+
+\textbf{Symmetric key cryptography} uses the same key $K_S$ for encryption and decryption ($K_A = K_B$),
+but the algorithms $K_A()$ and $K_B$ need not be the same.
+
+However, the need for an agreed, shared key is a major drawback of symmetric key cryptography.
+
+\begin{defn}{simple substitution ciphers}
+    In a \textbf{Caesar's cipher}, each alphabet is shifted by a fixed number ---
+    only 25 possible shift values, which is easy to brute-force.
+
+    In a \textbf{monoalphabetic cipher}, each alphabet is mapped to a different alphabet,
+    e.g. by a random permutation --- vulnerable to statistical analysis and common $n$-grams.
+
+    In a \textbf{polyalphabetic cipher}, $n$ ciphers are rotated in a predefined sequence known as a \textbf{cycling pattern}.
+\end{defn}
+
+Encryption schemes can be broken in 3 ways:
+\begin{enumerate}
+    \keyitem*{ciphertext-only attack}{only ciphertext is known, and can be analyzed}
+    \keyitem*{known-plaintext attack}{ciphertext is \textit{known} for a corresponding plaintext}
+    \keyitem*{chosen-plaintext attack}{ciphertext can be \textit{requested} for a corresponding ciphertext}
+\end{enumerate}
+
+\begin{defn}{block ciphers}
+    Messages are encrypted in blocks of $K$ bits, and each block is encrypted independently.
+
+    Blocks are mapped by a one-to-one substitution to a different block, such that there are $2^K!$ keys.
+\end{defn}
+
+\textbf{Data Encryption Standard (DES)} is a block cipher with 56-bit keys and 64-bit blocks,
+but is vulnerable to brute-force attacks.
+ 
+\textbf{Advanced Encryption Standard (AES)} replaced DES, and uses 128 bit blocks and 128, 192, or 256 bit keys.
+
+\subsection{Asymmetric Key Cryptography}
+Also known as \textbf{public key cryptography}, using different keys for encryption and decryption:
+
+\begin{itemize}
+    \keyitem*{public key $K_B^+$}{known to everyone, used for encryption}
+    \keyitem*{private key $K_B^-$}{known only to the receiver, used for decryption}
+\end{itemize}
+
+Similar to symmetric key cryptography, the plaintext $m = K_B^-(K_B^+(m))$.
+
+However, it must be impossible to compute the private key $K_B^-$ from the public key $K_B^+$.
+
+\begin{defn}{key property of modular arithmetic}
+    $(a \mod{n})^d \mod{n} = a^d \mod{n}$
+\end{defn}
+
+\subsubsection{RSA}
+A \textbf{message} is a bit pattern that can be uniquely represented by an integer,
+such that encrypting a message is equivalent to encrypting a number.
+
+\begin{defn*}{creating RSA public/private key pairs}
+    \begin{enumerate}
+        \item choose two large prime numbers $p$ and $q$
+        \item compute $n = p \cdot q$, $z = (p - 1)(q - 1)$
+        \item choose $e$ such that $e$ and $z$ are coprime (only common factor is 1), and $e < n$.
+        \item choose $d$ such that $e \cdot d \mod{z} = 1$ 
+    \end{enumerate}
+    The public key $K_B^+ = (n, e)$ and the private key $K_B^- = (n, d)$.
+\end{defn*}
+
+\begin{defn}{RSA encryption and decryption}
+    The ciphertext $c = m^e \mod{n}$ is decrypted into \\ $m = c^d \mod{n}$, where $m$ is the message.
+\end{defn}
+
+In RSA, the order of encryption and decryption is irrelevant: $K_B^+(K_B^-(m)) = m = K_B^-(K_B^+(m))$.
+
+In practice, RSA is used only to transfer a symmetric \textbf{session key} $K_S$ which is then used
+as the symmetric key in DES to encrypt data in a session.
+
+This is because exponentiation in RSA is computationally expensive, and DES is significantly faster.
+
+\subsection{Hashing}
+Checksums and CRC are useful for detecting errors, but are vulnerable to attacks as they are not
+collision-resistant.
+
+A \textbf{hash function} $H()$ takes a message $m$ and returns a \textit{fixed-length} message digest
+(\textbf{fingerprint}) $h$.
+
+A \textbf{cryptographic hash function} is a hash function such that it is computationally infeasible
+to find a collision, i.e. $H(m_1) = H(m_2)$ for $m_1 \neq m_2$.
+
+\textbf{MD5} and \textbf{SHA-1} have been \textbf{cryptographically broken},
+and are replaced by \textbf{SHA-2} and \textbf{SHA-3}.
+
+\subsubsection{Hash Functions}
+MD5 produces a 128 bit fingerprint using the \code{md5sum} command at the command line.
+
+A small change in the message $m$ results in a large change in the message digest $H(m)$.
+
+However, this still does not preserve message integrity as an attacker can simply replace
+a message and its hash $(m, H(s))$ with their own $(m', H(s'))$.
+
+\subsubsection{Message Authentication Code}
+Messages are sent as $(m, H(m + s))$, where $s$ is an \textbf{authentication key}
+known only to the sender and receiver.
+
+\subsection{Digital Signatures}
+Digital signatures must be \textbf{verifiable} and \textbf{unforgeable}.
+
+\begin{defn*}{digital signing}
+    \begin{enumerate*}
+        \item $B$ signs $m$ by encrypting with private key $K_B^-$, producing the signature $K_B^-(m)$
+        \item the message is paired with its signature and sent as $(m, K_B^-(m))$
+        \item the signature $K_B^-(m)$ is verified by decrypting with public key $K_B^+$, producing $K_B^+(K_B^-(m))$
+    \end{enumerate*}
+    $K_B^+(K_B^-(m)) = m \implies m$ is verified to have been signed by $B$, as whoever signed $m$
+    must have used $B$'s private key, $K_B^-$.
+\end{defn*}
+
+Optimization of digital signing involves signing the \textit{hash} of the message instead
+of the entire message, and the hashes $H(m)$ and $K_B^+(K_B^-(H(m)))$ are compared at the receiver.
+
+\subsubsection{Public Key Certification}
+An attacker can sign a message with their own private key, and send it with their own public key
+and claiming to be someone else.
+
+Therefore, to verify that a public key belongs to a particular person, a \textbf{certificate authority} (CA)
+maintains a public database of public keys and their corresponding identities.
+
+However, an attacker can still intercept communication with the CA and alter it,
+so the CA signs its messages.
+
+However, we still do not know the CA's public key, so such knowledge is made universal
+at the OS level as a list of \textbf{trusted root certification authorities}.
+
+\begin{defn}{certification}
+    Any entity $E$, e.g. person or router can prove its identity to the CA.
+
+    The CA creates a \textbf{certificate} binding $E$ to its public key $K_E^+$, and signs it with its private key $K_{CA}^-$.
+
+    This certificate can be verified by decrypting with the CA's public key $K_{CA}^+$, producing $K_{CA}^+(K_{CA}^-(K_E^+)) = K_E^+$.
+\end{defn}
+
+
+\section{Firewalls}
+\textbf{Firewalls} isolate an internal network from the Internet, and selectively allow
+packets to pass through.
+
+This can prevent \textbf{denial-of-service} (DoS) attacks and illegal modification or access
+of internal data.
+
+This can also allow \textit{only} authorized users to access the internal network.
+
+However, they are vulnerable to \textbf{IP spoofing} and can become a bottleneck.
+
+\begin{defn}{stateless packet filtering}
+    A \textbf{router firewall} filters packet-by-packet and forwards or drops packets based on any of the following:
+    \begin{itemize}
+        \item source and destination IP addresses
+        \item TCP/UDP source and destination port numbers
+        \item ICMP message type
+        \item TCP \code{SYN} and \code{ACK} bits (prevents \textbf{\code{SYN} flooding})
+    \end{itemize}
+\end{defn}
+
+\textbf{Access control lists} are a table of rules applied sequentially from top to bottom on incoming packets
+to determine whether to allow or deny a packet.
