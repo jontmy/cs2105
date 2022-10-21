@@ -17,8 +17,8 @@
 | TCP, Reliable Transmission                 | ✓          |
 | DHCP, IP Addressing                        | ✓          |
 | NAT, ICMP, Routing                         | ✓          |
-| Link Layer                                 |            |
-| Network Security                           |            |
+| Link Layer                                 | ✓          |
+| Network Security                           | ✓          |
 | Multimedia Networking                      |            |
 
 ## Additional Resources ##
