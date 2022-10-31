@@ -19,7 +19,7 @@
 | NAT, ICMP, Routing                         | ✓          |
 | Link Layer                                 | ✓          |
 | Network Security                           | ✓          |
-| Multimedia Networking                      |            |
+| Multimedia Networking                      | ✓          |
 
 ## Additional Resources ##
 

@@ -1,0 +1,138 @@
+\part{Multimedia Networking}
+
+\section{Multimedia Applications}
+Multimedia networking has 3 main applications:
+
+\begin{enumerate}
+    \item streaming stored audio/video
+    \item conversational (2-way live)
+    \item streaming live (1-way live)
+\end{enumerate}
+
+\subsection{Streaming}
+Streaming stored video allows playback before the entire video is downloaded.
+
+Videos are stored in \textbf{chunks} and transmitted faster than they are played.
+
+The \textbf{continuous playout constraint} demands that playback must match the original
+timing of the video once playback begins.
+
+\textbf{Client-side buffering} compensates for variable network delays (\textbf{jitter}).
+
+\begin{defn*}{buffering, formally}
+    \begin{itemize}
+        \keyitem*{$x(t)$}{the variable fill rate}
+        \keyitem*{$Q(t)$}{the buffer of size $B$'s fill level}
+        \keyitem*{$r$}{the playout rate}
+    \end{itemize}
+
+    With an average fill rate of $\bar{x}$:
+    \begin{itemize}
+        \keyitem*{$\bar{x} < r$}{buffer will empty, freezing playback}
+        \keyitem*{$\bar{x} > r$}{buffer will not empty, as long as the \textbf{initial playout delay} absorbs the variability of $x(t)$}
+    \end{itemize}
+
+    A high initial delay decreases the likelihood of \textbf{buffer starvation}, but in itself
+    delays the start of playback.
+\end{defn*}
+
+\textbf{Push-based streaming} via \textbf{UDP} with its lack of congestion (rate) control
+allows the server to send at any rate appropriate for the client with a short playout delay
+to remove jitter.
+
+Drawbacks include cost and complexity of media control servers, and firewalls often block
+UDP traffic.
+
+\textbf{Pull-based streaming} via \textbf{HTTP GET requests} sends at the maximum rate via \textbf{TCP},
+which is firewall-friendly, and the infrastructure is already in place and optimized for it.
+
+However, this requires a longer playout delay, and the fill rate fluctuates due to TCP congestion control.
+
+\subsection{VoIP}
+End-to-end delay must be minimized (ideally < 150ms, at worst < 400ms),
+but without guarantees on delay and packet loss from the IP layer.
+
+Packets are generated in \textbf{chunks} of 20ms at 64kbps during \textbf{talk spurts}.
+
+The application layer header is encapsulated with each chunk into a UDP or TCP packet.
+
+Any delayed IP datagram past a 400ms tolerable delay is dropped (\textbf{delay loss}),
+in addition to inherent \textbf{network loss} from network congestion.
+
+\begin{defn}{fixed playout delay, $q$}
+    Each chunk has a \textbf{sequence number} and \textbf{timestamp}.
+
+    Playout of each chunk is delayed by a constant $q$ ms after it is generated ---
+    a larger $q$ means less packet loss, while a smaller $q$ is a better interactive experience.
+
+    No value of $q$ can guarantee optimal performance --- packet loss or wasted playout time is inevitable.
+\end{defn}
+
+\begin{defn}{adaptive playout delay, $q_i$}
+    The playout delay is adjusted dynamically to compensate for network conditions, but 
+    \textbf{only silent periods} are compressed or elongated.
+
+    Packet delay at time $i$ is estimated via an exponentially-weighted moving average:
+
+    delay estimate, \\ 
+    $d_i = (1 - \alpha) d_{i - 1} + \alpha (r_i - t_i)$
+
+    average delay deviation estimate, \\ 
+    $v_i = (1 - \beta) v_{i - 1} + \beta |r_i - t_i - d_i|$
+
+    playout delay, \\
+    $q_i = t_i + d_i + 4v_i$
+
+    where $\alpha$ and $\beta$ are small constants, $r_i$ is the time the chunk is received,
+    and $t_i$ is the time the chunk is transmitted.
+
+    $d_i$ and $v_i$ are computed per packet, but $q_i$ is only applied per talk spurt
+    (hence only silent periods are adjusted).
+\end{defn}
+
+Now, with delays addressed, we address \textbf{packet loss} via \textbf{forward error correction}:
+
+\begin{defn}{simple FEC}
+    Create and send a redundant chunk for each $n$ chunks by \code{XOR}-ing the $n$ chunks.
+
+    At most one lost chunk can be reconstructed from the $n$ chunks out of the $n + 1$ sent.
+
+    This comes at the expense of an increased bandwidth requirement by $\frac{1}{n}$ and increased playout delay.
+\end{defn}
+
+\begin{defn}{piggyback FEC}
+    For every chunk that is sent, prepend a lower resolution version to the next chunk
+    which is played.
+    
+    This conceals \textit{non-consecutively lost chunks}.
+\end{defn}
+
+\begin{defn}{interleaving FEC}
+    Subdivide each chunk into $n$ subchunks and distribute among $n$ chunks evenly,
+    such that each packet now has one subchunk from each of the $n$ chunk.
+
+    Packet loss is concealed by \textbf{packet repetition} or \textbf{packet interpolation}.
+
+    This does not incur any redundancy overhead, but always increases playout delay.
+\end{defn}
+
+\subsection{DASH}
+Simple HTTP streaming \code{GET}s an entire video file which may be wasteful and requires a
+large buffer.
+
+Also, all clients receive the same video encode regardless of their device
+and network bandwith, which is not ideal.
+
+\begin{defn}{dynamic, adaptive streaming over HTTP (DASH)}
+    The server divides a video file into multiple chunks, and each chunk is encoded at multiple bitrates.
+
+    The \textbf{manifest file} provides URLs for each different encoding, which the client downloads.
+
+    The client uses an \textbf{adaptive bitrate algorithm} to measure bandwidth and requests 
+    the best encoding for its current sustainable bandwidth.
+\end{defn}
+
+DASH is simple and scalable, but cannot provide the low latency needed for interactive two-way applications.
+
+\textbf{Content distribution networks} (CDNs) store and serve multiple copies of videos at multiple
+geographically distributed sites.
