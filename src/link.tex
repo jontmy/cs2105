@@ -182,8 +182,8 @@ Random access protocols must \textit{detect} and \textit{recover} from collision
 
 Slotted ALOHA is \textit{fair} and \textit{decentralized}, but \textbf{not collision free}.
 
-It is also \textbf{efficient-by-definition} when there is only 1 node, 
-but only 37\% efficient otherwise, as slots are wasted by collision and by being empty.
+It is also \textbf{efficient} (but only by definition) when there is only 1 node.
+It is only 37\% efficient otherwise, as slots are wasted by collision and by being empty.
 
 \begin{defn}{pure (unslotted) ALOHA}
     No synchonization and time slots are needed --- nodes transmit immediately at any time.
@@ -214,7 +214,7 @@ Both ALOHA and CDMA are flawed, in that they do not stop transmitting when colli
         \item wait $k$ time units before re-transmitting
         \item after another collision, choose $k' \in \{0, 1, 2, 2^2 - 1\}$
         \item wait $k'$ time units before re-transmitting
-        \item after $m$ collisions, choose $k'' \in \{0, 1, 2, 2^2 - 1, \dots, 2^m - 1\}$
+        \item after $m$ collisions, choose $k'' \in \{0, 1, 2, 3, \dots, \\ 2^m - 1\}$
         \item wait $k''$ time units before re-transmitting
     \end{enumerate}
 
