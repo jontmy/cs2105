@@ -258,8 +258,8 @@ passing only those addressed to itself to the network layer.
     \end{tblr}
 \end{defn}
 
-The data size is upper bounded by the link \textbf{maximum transmission unit (MTU)},
-and lower bounded to ensure collision detection.
+The data size is upper bounded by the link \textbf{maximum transmission unit (MTU)} of 1500 bytes,
+and lower bounded at 46 bytes to ensure collision detection.
 
 Ethernet uses \textbf{CRC-32} using a 32-bit generator.
 
@@ -331,6 +331,8 @@ Switches have other benefits:
     There is one exception: a switch receiving a frame on an interface that it would forward it back onto is simply dropped: (\textbf{filtering}).
 \end{defn}
 
+In the event that MAC addresses in a subnet are not unique, transmissions to and from hosts with the same MAC address will be severely disrupted.
+
 
 \section{Address Resolution Protocol (ARP)}
 
@@ -338,9 +340,9 @@ Switches have other benefits:
 
 \begin{defn}{ARP tables}
     Every IP node maintains an \textbf{ARP table} which maps IP addresses to MAC addresses
-    within a subnet, and can be listed with \code{arp}.
+    of some hosts within a subnet, and can be listed with \code{arp}.
 
-    Every entry has a TTL, usually in the order of minutes.
+    Every entry has a TTL, usually in the order of minutes, as entries for disconnected hosts need to be removed.
 \end{defn}
 
 ARP is \textbf{plug-and-play} --- nodes create their ARP tables without intervention from
